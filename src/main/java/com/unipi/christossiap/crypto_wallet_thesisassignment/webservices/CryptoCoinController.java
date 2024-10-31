@@ -25,7 +25,6 @@ import java.util.List;
 public class CryptoCoinController {
 
     //private static final Logger logger = LoggerFactory.getLogger(CryptoCoinController.class);
-
     @Autowired
     private CryptoCoinService cryptoCoinService;
 
