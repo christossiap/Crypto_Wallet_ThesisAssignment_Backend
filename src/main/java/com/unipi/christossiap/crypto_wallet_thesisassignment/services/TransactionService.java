@@ -9,6 +9,8 @@ import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 public class TransactionService {
     @Autowired
@@ -18,29 +20,44 @@ public class TransactionService {
     @Autowired
     private PortfolioService portfolioService;
 
-
-    private void processTransaction(String cryptoCoinName, Double amount, Integer portfolioId, String transactionType) throws Exception {
+    public void processTransaction(String cryptoCoinName, Double amount, Integer portfolioId, String transactionType) throws Exception {
         CryptoCoin coin = cryptoCoinService.getCryptoCoin(cryptoCoinName);
-        Double balance = portfolioService.getPortfolioBalance(portfolioId);
+        Portfolio portfolio = portfolioService.getPortfolio(portfolioId); // Assuming a getPortfolio method exists in PortfolioService
+
+        Double balance = portfolio.getBalance();
+        Double totalPrice = coin.getPrice() * amount;
 
         switch (transactionType) {
             case "BUY":
-                Double price = coin.getPrice()*amount;
-                if (balance<price) {
-                    throw new Exception("Δεν φτάνει το balance");
+                if (balance < totalPrice) {
+                    throw new Exception("Insufficient balance to complete the purchase");
                 }
-                else {
-                    portfolioService.setPortfolioBalance(portfolioId,balance-price);
-                }
+                portfolioService.setPortfolioBalance(portfolioId, balance - totalPrice);
+                portfolio.setCoinAmount(portfolio.getCoinAmount() + amount);
                 break;
+
             case "SELL":
-                portfolioService.setPortfolioBalance(portfolioId,balance+coin.getPrice());
+                if (portfolio.getCoinAmount() < amount) {
+                    throw new Exception("Insufficient coins to sell");
+                }
+                portfolioService.setPortfolioBalance(portfolioId, balance + totalPrice);
+                portfolio.setCoinAmount(portfolio.getCoinAmount() - amount);
                 break;
+
             default:
                 throw new IllegalArgumentException("Unknown transaction type");
         }
 
+        // Create and save transaction record
+        Transaction transaction = new Transaction();
+        transaction.setAmount(amount);
+        transaction.setPriceAtTransaction(coin.getPrice());
+        transaction.setTransactionDate(LocalDateTime.now());
+        transaction.setTransactionType(transactionType);
+        transaction.setPortfolio(portfolio);
 
+        transactionRepository.save(transaction);
+        portfolioService.savePortfolio(portfolio);  // Save updated portfolio via PortfolioService
     }
-
 }
+
