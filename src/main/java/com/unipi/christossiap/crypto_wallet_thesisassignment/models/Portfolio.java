@@ -19,8 +19,8 @@ public class Portfolio {
 
     private Double amount; // Amount of a specific crypto the user holds
 
-    @ManyToMany(mappedBy = "portfolio")
-    private List<CryptoCoin> coins;
+    @ManyToMany(mappedBy = "portfolios")
+    private List<CryptoCoin> cryptoCoins;
 
     @OneToOne
     @MapsId
@@ -28,5 +28,5 @@ public class Portfolio {
     private User user;
 
     @OneToMany(mappedBy = "portfolio")
-    private List<Transaction> transactions;
+    private List<Transaction> transaction = new ArrayList<>();
 }

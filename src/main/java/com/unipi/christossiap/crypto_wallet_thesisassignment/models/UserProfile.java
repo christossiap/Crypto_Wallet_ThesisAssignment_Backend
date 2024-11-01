@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Entity
 public class UserProfile {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String preferredCurrency; // e.g., USD, EUR
     private String notificationPreferences; // How users want to receive notifications

@@ -8,28 +8,28 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "cryptocoin")
 public class CryptoCoin {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String name;
     private String symbol;
-    private Long total_supply;
+    private Long totalSupply;
     private Double price;
-    private Double percent_change_24h;
-    private Double market_cap;
-    private LocalDateTime last_updated;
+    private Double percentChange24h;
+    private Double marketCap;
+    private LocalDateTime lastUpdated;
 
     @ManyToMany
     @JoinTable(
-            name = "cryptocoin_portfolio",
+            name = "CryptoCoinPortfolio",
             joinColumns = @JoinColumn(name = "cryptocoin_id"),
             inverseJoinColumns = @JoinColumn(name = "portfolio_id")
     )
@@ -38,7 +38,7 @@ public class CryptoCoin {
 
     @ManyToMany
     @JoinTable(
-            name = "cryptocoin_transaction",
+            name = "CryptoCoinTransaction",
             joinColumns = @JoinColumn(name = "cryptocoin_id"),
             inverseJoinColumns = @JoinColumn(name = "transaction_id")
     )

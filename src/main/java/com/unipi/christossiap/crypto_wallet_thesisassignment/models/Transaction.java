@@ -16,9 +16,8 @@ import java.util.List;
 @Entity
 public class Transaction {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private Integer userId; // Foreign key to User
-    private Integer coinId; // Foreign key to CryptoCoin
     private Double amount;
     private Double priceAtTransaction;
     private LocalDateTime transactionDate;
@@ -28,7 +27,7 @@ public class Transaction {
     @JoinColumn(name = "portfolio_id")
     private Portfolio portfolio;
 
-    @ManyToMany(mappedBy = "transaction")
+    @ManyToMany(mappedBy = "transactions")
     private List<CryptoCoin> cryptoCoins;
 
 }
