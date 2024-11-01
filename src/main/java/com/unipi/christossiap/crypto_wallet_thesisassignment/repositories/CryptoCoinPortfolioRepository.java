@@ -1,0 +1,10 @@
+package com.unipi.christossiap.crypto_wallet_thesisassignment.repositories;
+
+import com.unipi.christossiap.crypto_wallet_thesisassignment.models.associations.CryptoCoinPortfolio;
+import org.hibernate.sql.ast.tree.expression.JdbcParameter;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface CryptoCoinPortfolioRepository extends JpaRepository<CryptoCoinPortfolio,Integer> {
+}

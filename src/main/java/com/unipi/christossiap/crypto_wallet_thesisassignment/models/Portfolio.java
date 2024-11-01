@@ -14,10 +14,11 @@ import java.util.List;
 @Entity
 public class Portfolio {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private Double amount; // Amount of a specific crypto the user holds
+    private Double balance;
+
+    private Double coinAmount;
 
     @ManyToMany(mappedBy = "portfolios")
     private List<CryptoCoin> cryptoCoins;

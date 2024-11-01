@@ -1,6 +1,7 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.models;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jdk.dynalink.linker.LinkerServices;
 import lombok.AllArgsConstructor;
@@ -28,6 +29,7 @@ public class CryptoCoin {
     private LocalDateTime lastUpdated;
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(
             name = "CryptoCoinPortfolio",
             joinColumns = @JoinColumn(name = "cryptocoin_id"),
@@ -37,6 +39,7 @@ public class CryptoCoin {
 
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(
             name = "CryptoCoinTransaction",
             joinColumns = @JoinColumn(name = "cryptocoin_id"),

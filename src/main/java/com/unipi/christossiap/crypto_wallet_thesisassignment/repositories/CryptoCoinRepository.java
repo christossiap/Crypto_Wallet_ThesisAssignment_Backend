@@ -8,6 +8,5 @@ import org.springframework.stereotype.Repository;
 public interface CryptoCoinRepository extends JpaRepository<CryptoCoin, Integer> {
     CryptoCoin findCryptoCoinById(int id);
     CryptoCoin findCryptoCoinByName(String name);
-
     CryptoCoin findCryptoCoinByNameAndId(String name, int id);
 }
