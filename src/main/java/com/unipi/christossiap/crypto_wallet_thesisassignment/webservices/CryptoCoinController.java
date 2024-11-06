@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -31,11 +32,18 @@ public class CryptoCoinController {
     @GetMapping(value = "/crypto/{name}")
     public ResponseEntity<CryptoCoin> handleRequest1(@PathVariable @Valid String name) throws ResourceNotFoundException {
         CryptoCoin coin = cryptoCoinService.getCryptoCoin(name);
-        return new ResponseEntity<>(coin, HttpStatus.OK);
+        return ResponseEntity.ok(coin);
     }
 
     @GetMapping(value = "/cryptos")
     public ResponseEntity<List<CryptoCoin>> handleRequest2() throws ResourceNotFoundException {
-        return new ResponseEntity<>(cryptoCoinService.getAllCryptoCoins(),HttpStatus.OK);
+        return ResponseEntity.ok(cryptoCoinService.getAllCryptoCoins());
+    }
+
+    @GetMapping(value = "/test")
+    public ResponseEntity<List<CryptoCoin>> handleRequest3(){
+        List<CryptoCoin> cryptoCoins = cryptoCoinService.searchCryptoCoins(null,null,
+                5.0,null);
+        return ResponseEntity.ok(cryptoCoins);
     }
 }

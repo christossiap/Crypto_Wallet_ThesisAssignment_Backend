@@ -1,10 +1,13 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.services;
 
+import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.UserPortfolioInfo;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.Portfolio;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.repositories.PortfolioRepository;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class PortfolioService {
@@ -28,7 +31,11 @@ public class PortfolioService {
     public void setPortfolioBalance(Integer portfolioId, Double newBalance) throws ResourceNotFoundException {
         Portfolio portfolio = getPortfolio(portfolioId);
         portfolio.setBalance(newBalance);
-        savePortfolio(portfolio); // Using savePortfolio method for consistency
+        savePortfolio(portfolio);
+    }
+
+    public List<UserPortfolioInfo> getAllUserPortfolioInfo(){
+        return portfolioRepository.findUserPortfolioInfo();
     }
 }
 

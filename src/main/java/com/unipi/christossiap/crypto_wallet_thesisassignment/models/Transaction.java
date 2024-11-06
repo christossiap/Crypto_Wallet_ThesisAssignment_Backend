@@ -1,5 +1,6 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.associations.CryptoCoinTransaction;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -24,10 +25,12 @@ public class Transaction {
     private String transactionType; // BUY, SELL, TRANSFER
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "portfolio_id")
     private Portfolio portfolio;
 
     @ManyToMany(mappedBy = "transactions")
+    @JsonIgnore
     private List<CryptoCoin> cryptoCoins;
 
 }
