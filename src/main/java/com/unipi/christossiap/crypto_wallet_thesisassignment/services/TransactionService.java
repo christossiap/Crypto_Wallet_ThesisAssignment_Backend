@@ -45,7 +45,7 @@ public class TransactionService {
     }
 
     public void processTransaction(String cryptoCoinName, Double amount, Integer portfolioId, String transactionType) throws Exception {
-        CryptoCoin coin = cryptoCoinService.getCryptoCoin(cryptoCoinName);
+        CryptoCoin coin = cryptoCoinService.getCryptoCoinByName(cryptoCoinName);
         Portfolio portfolio = portfolioService.getPortfolio(portfolioId);
 
         Double balance = portfolio.getBalance();

@@ -6,6 +6,7 @@ import com.unipi.christossiap.crypto_wallet_thesisassignment.repositories.Crypto
 import com.unipi.christossiap.crypto_wallet_thesisassignment.repositories.specifications.CryptoCoinSpecification;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -19,7 +20,9 @@ public class CryptoCoinService {
     @Autowired
     private CryptoCoinRepository cryptoCoinRepository;
 
-    public CryptoCoin getCryptoCoin(String name) throws ResourceNotFoundException {
+
+
+    public CryptoCoin getCryptoCoinByName(String name) throws ResourceNotFoundException {
         CryptoCoin coin = cryptoCoinRepository.findCryptoCoinByName(name);
         if (coin == null){
             throw new ResourceNotFoundException("Δεν βρέθηκε το συγκεκριμένο κρυπτονόμισμα!");
@@ -27,7 +30,9 @@ public class CryptoCoinService {
         return coin;
     }
 
-    public CryptoCoin getCryptoCoin(Integer id) throws ResourceNotFoundException {
+
+    @Cacheable(value = "my-cache", key = "'coin-' + #id",sync = true)
+    public CryptoCoin getCryptoCoinById(Integer id) throws ResourceNotFoundException {
         CryptoCoin coin = cryptoCoinRepository.findCryptoCoinById(id);
         if (coin == null){
             throw new ResourceNotFoundException("Δεν βρέθηκε το συγκεκριμένο κρυπτονόμισμα!");

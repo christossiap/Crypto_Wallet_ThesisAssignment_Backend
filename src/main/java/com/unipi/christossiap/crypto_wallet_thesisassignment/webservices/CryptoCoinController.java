@@ -33,7 +33,13 @@ public class CryptoCoinController {
 
     @GetMapping(value = "/crypto/{name}")
     public ResponseEntity<CryptoCoin> handleRequest1(@PathVariable @Valid String name) throws ResourceNotFoundException {
-        CryptoCoin coin = cryptoCoinService.getCryptoCoin(name);
+        CryptoCoin coin = cryptoCoinService.getCryptoCoinByName(name);
+        return ResponseEntity.ok(coin);
+    }
+
+    @GetMapping(value = "/cryptos/{id}")
+    public ResponseEntity<CryptoCoin> handleRequest4(@PathVariable @Valid Integer id) throws ResourceNotFoundException {
+        CryptoCoin coin = cryptoCoinService.getCryptoCoinById(id);
         return ResponseEntity.ok(coin);
     }
 
