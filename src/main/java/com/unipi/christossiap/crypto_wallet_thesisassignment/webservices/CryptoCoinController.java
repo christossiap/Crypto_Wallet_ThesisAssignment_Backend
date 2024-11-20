@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
+@CrossOrigin(origins = "http://192.168.122.30:3000/") // Allow requests from frontend running on http://192.168.122.30:3000/
 @RestController
 @RequestMapping(path = "/api",produces = "application/json")
 @Validated

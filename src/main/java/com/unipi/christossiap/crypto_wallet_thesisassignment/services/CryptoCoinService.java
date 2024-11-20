@@ -37,7 +37,7 @@ public class CryptoCoinService {
 
     public List<CryptoCoin> getAllCryptoCoins() throws ResourceNotFoundException {
         int page = 0;
-        int size = 2;
+        int size = 8;
 
         PageRequest pageable = PageRequest.of(page,size);
         Page<CryptoCoin> result = cryptoCoinRepository.findAll(pageable);
