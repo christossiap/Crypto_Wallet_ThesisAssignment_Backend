@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserPortfolioInfo {
-    private String fullName;
+    private String username;
     private Double balance;
     private String coinName;
     private Double coinAmount;

@@ -1,24 +1,28 @@
-package com.unipi.christossiap.crypto_wallet_thesisassignment.models;
+package com.unipi.christossiap.crypto_wallet_thesisassignment.models.auth;
 
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.auth.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class UserProfile {
+public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private String preferredCurrency; // e.g., USD, EUR
-    private String notificationPreferences; // How users want to receive notifications
+    private String name;
 
-    @OneToOne
-    @MapsId
-    @JoinColumn(name = "user_id")
-    private User user;
+
+    @JsonIgnore
+    @ManyToMany(mappedBy = "roles")
+    private List<User> users;
+
 }

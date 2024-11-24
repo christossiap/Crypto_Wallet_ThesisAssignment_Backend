@@ -23,7 +23,7 @@ import java.util.List;
 import org.springframework.web.bind.annotation.CrossOrigin;
 @CrossOrigin(origins = "http://192.168.122.30:3000/") // Allow requests from frontend running on http://192.168.122.30:3000/
 @RestController
-@RequestMapping(path = "/api",produces = "application/json")
+@RequestMapping(path = "/api/coin/",produces = "application/json")
 @Validated
 public class CryptoCoinController {
 

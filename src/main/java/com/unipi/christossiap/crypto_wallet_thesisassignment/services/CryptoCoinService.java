@@ -11,8 +11,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -60,7 +58,7 @@ public class CryptoCoinService {
             spec = spec.and(CryptoCoinSpecification.hasName(name));
 
         if (symbol!=null)
-            spec = spec.and(CryptoCoinSpecification.hasSymbol(symbol));
+            spec = spec.and(    CryptoCoinSpecification.hasSymbol(symbol));
 
         if (priceGreaterThan!=null)
             spec = spec.and(CryptoCoinSpecification.hasPriceGreaterThan(priceGreaterThan));

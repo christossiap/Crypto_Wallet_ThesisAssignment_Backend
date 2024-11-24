@@ -2,18 +2,20 @@ package com.unipi.christossiap.crypto_wallet_thesisassignment.settings;
 
 import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.ResourceAlreadyExistsException;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.ResourceNotFoundException;
-import org.hibernate.exception.ConstraintViolationException;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.web.servlet.error.DefaultErrorAttributes;
 import org.springframework.boot.web.servlet.error.ErrorAttributes;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -60,19 +62,34 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(map, status);
     }
-//    @ExceptionHandler(value = ConstraintViolationException.class)
-//    public ResponseEntity<Map<String, Object>> handleException(ConstraintViolationException ex, WebRequest request) {
-//        HttpStatus status = HttpStatus.BAD_REQUEST;
-//
-//        List<String> errorMessage = new ArrayList<>();
-//        for (var violation: ex.getConstraintViolations()) {
-//            errorMessage.add(violation.getMessageTemplate());
-//        }
-//
-//        Map<String, Object> map = httpResponse(String.join(", ", errorMessage), ex, request, status);
-//
-//        return new ResponseEntity<>(map, status);
-//    }
+
+
+    @ExceptionHandler(value = BindException.class)
+    public ResponseEntity<Map<String, Object>> handleException(BindException ex, WebRequest request) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
+        List<String> errors = new ArrayList<>();
+        for (var violation: ex.getAllErrors())
+            errors.add(violation.getDefaultMessage());
+
+        Map<String, Object> map= httpResponseErrorList(
+                errors, request, status);
+
+        return new ResponseEntity<>(map, status);
+    }
+    @ExceptionHandler(value = ConstraintViolationException.class)
+    public ResponseEntity<Map<String, Object>> handleException(ConstraintViolationException ex, WebRequest request) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
+        List<String> errorMessage = new ArrayList<>();
+        for (var violation: ex.getConstraintViolations()) {
+            errorMessage.add(violation.getMessageTemplate());
+        }
+
+        Map<String, Object> map = httpResponse(String.join(", ", errorMessage), ex, request, status);
+
+        return new ResponseEntity<>(map, status);
+    }
 
     @ExceptionHandler(value = ResourceNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleException(ResourceNotFoundException ex, WebRequest request) {
@@ -86,6 +103,15 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = ResourceAlreadyExistsException.class)
     public ResponseEntity<Map<String, Object>> handleException(ResourceAlreadyExistsException ex, WebRequest request) {
         HttpStatus status = HttpStatus.CONFLICT;
+
+        Map<String, Object> map = httpResponse(ex.getMessage(), ex, request, status);
+
+        return new ResponseEntity<>(map, status);
+    }
+
+    @ExceptionHandler(value = AccessDeniedException.class)
+    public ResponseEntity<Map<String, Object>> handleException(AccessDeniedException ex, WebRequest request) {
+        HttpStatus status = HttpStatus.UNAUTHORIZED;
 
         Map<String, Object> map = httpResponse(ex.getMessage(), ex, request, status);
 
