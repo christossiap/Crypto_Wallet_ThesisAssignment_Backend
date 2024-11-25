@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import javax.sound.sampled.Port;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -31,6 +32,6 @@ public class Transaction {
 
     @ManyToMany(mappedBy = "transactions")
     @JsonIgnore
-    private List<CryptoCoin> cryptoCoins;
+    private List<CryptoCoin> cryptoCoins = new ArrayList<>();
 
 }

@@ -39,8 +39,8 @@ public class WebSecurityConfig {
         http
                 .csrf(csrf->csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
-//                        .requestMatchers("/api/pie/**").hasAuthority("ROLE_ADMIN")
-//                        .requestMatchers("/api/area/**").hasAuthority("ROLE_USER")
+                        .requestMatchers("/api/coin/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/api/portfolio/**").hasAuthority("ROLE_USER")
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

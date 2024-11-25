@@ -21,13 +21,16 @@ import java.util.stream.Collectors;
 @Service
 public class AuthService implements UserDetailsService {
     @Autowired
-
     private UserRepository userRepository;
+
     @Autowired
     private RoleRepository roleRepository;
 
     @Autowired
     public PasswordEncoder passwordEncoder;
+
+    @Autowired
+    public UserService userService;
 
 
     @Override
@@ -37,24 +40,19 @@ public class AuthService implements UserDetailsService {
             throw new UsernameNotFoundException("Invalid username or password.");
         }
 
-        List<String> list = new ArrayList<>();
-
-        for (Role role : user.getRoles()){
-            list.add(role.getName());
-        }
-
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
-                getAuthorities(list)
+                getAuthorities(userRepository.findUserRoles(user.getId()))
         );
     }
 
     public void registerUser(User user) {
-        Role role = roleRepository.findRoleByName("user");
+        Role role = roleRepository.findRoleByName("USER");
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
-        userRepository.saveWithRole(user, role);
+        user.addRole(role);
+        userService.saveUser(user);
     }
 
     private Collection<? extends GrantedAuthority> getAuthorities(Collection<String> roles) {

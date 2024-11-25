@@ -22,7 +22,7 @@ public class Portfolio {
     private Double coinAmount;
 
     @ManyToMany(mappedBy = "portfolios")
-    private List<CryptoCoin> cryptoCoins;
+    private List<CryptoCoin> cryptoCoins = new ArrayList<>();
 
     @OneToOne
     @MapsId

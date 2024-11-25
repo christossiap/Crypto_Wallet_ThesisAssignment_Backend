@@ -18,8 +18,6 @@ public class CryptoCoinService {
     @Autowired
     private CryptoCoinRepository cryptoCoinRepository;
 
-
-
     public CryptoCoin getCryptoCoinByName(String name) throws ResourceNotFoundException {
         CryptoCoin coin = cryptoCoinRepository.findCryptoCoinByName(name);
         if (coin == null){

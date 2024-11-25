@@ -35,7 +35,7 @@ public class CryptoCoin {
             joinColumns = @JoinColumn(name = "cryptocoin_id"),
             inverseJoinColumns = @JoinColumn(name = "portfolio_id")
     )
-    private List<Portfolio> portfolios;
+    private List<Portfolio> portfolios = new ArrayList<>();
 
 
     @ManyToMany
@@ -45,5 +45,5 @@ public class CryptoCoin {
             joinColumns = @JoinColumn(name = "cryptocoin_id"),
             inverseJoinColumns = @JoinColumn(name = "transaction_id")
     )
-    private List<Transaction> transactions;
+    private List<Transaction> transactions = new ArrayList<>();
 }
