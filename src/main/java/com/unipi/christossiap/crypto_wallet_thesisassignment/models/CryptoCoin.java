@@ -46,4 +46,14 @@ public class CryptoCoin {
             inverseJoinColumns = @JoinColumn(name = "transaction_id")
     )
     private List<Transaction> transactions = new ArrayList<>();
+
+
+    @ManyToMany
+    @JsonIgnore
+    @JoinTable(
+            name = "CryptoCoinWatchList",
+            joinColumns = @JoinColumn(name = "cryptocoin_id"),
+            inverseJoinColumns = @JoinColumn(name = "watchlist_id")
+    )
+    private List<WatchList> watchLists = new ArrayList<>();
 }

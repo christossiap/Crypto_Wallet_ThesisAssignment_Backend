@@ -13,6 +13,11 @@ import java.util.List;
 @Repository
 public interface UserRepository extends JpaRepository<User,Integer> {
     User findUserByUsername(String username);
+
+    User findUserByEmail(String email);
+
+    User findUserByCode(String code);
+
     @Query("SELECT r.name " +
             "FROM Role r " +
             "    JOIN UserRole ur ON r.id= ur.role.id " +

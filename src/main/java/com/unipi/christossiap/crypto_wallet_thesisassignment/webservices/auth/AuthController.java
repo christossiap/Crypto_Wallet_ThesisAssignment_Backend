@@ -4,6 +4,7 @@ import com.unipi.christossiap.crypto_wallet_thesisassignment.configuration.auth.
 import com.unipi.christossiap.crypto_wallet_thesisassignment.configuration.auth.jwt.JwtTokenProvider;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.auth.User;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.services.auth.AuthService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,12 +12,14 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.file.AccessDeniedException;
 
 @RestController
 @RequestMapping("/api")
+@Validated
 public class AuthController {
 
     @Autowired
@@ -48,7 +51,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> handleRequest2(@RequestBody User user) {
+    public ResponseEntity<?> handleRequest2(@Valid @RequestBody User user) {
         authService.registerUser(user);
 
         return new ResponseEntity<>(user, HttpStatus.OK);

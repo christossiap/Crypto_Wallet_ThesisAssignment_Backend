@@ -1,4 +1,4 @@
-package com.unipi.christossiap.crypto_wallet_thesisassignment.repositories;
+package com.unipi.christossiap.crypto_wallet_thesisassignment.repositories.associations;
 
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.associations.CryptoCoinPortfolio;
 import org.hibernate.sql.ast.tree.expression.JdbcParameter;

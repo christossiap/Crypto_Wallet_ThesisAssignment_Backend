@@ -19,13 +19,10 @@ public class UserService {
     @Autowired
     private RoleRepository roleRepository;
 
-    public void saveUser(User user){
-        userRepository.save(user);
-    }
-
     public User getUser(String username){
         return userRepository.findUserByUsername(username);
     }
+
 
     public List<User> getAllUsers(){
         return userRepository.findAll();
