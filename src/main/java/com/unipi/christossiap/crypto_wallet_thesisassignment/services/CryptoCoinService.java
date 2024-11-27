@@ -68,4 +68,9 @@ public class CryptoCoinService {
 
         return cryptoCoins;
     }
+
+    public CryptoCoin addCryptoCoin(CryptoCoin coin){
+       cryptoCoinRepository.save(coin);
+       return cryptoCoinRepository.findCryptoCoinByName(coin.getName());
+    }
 }

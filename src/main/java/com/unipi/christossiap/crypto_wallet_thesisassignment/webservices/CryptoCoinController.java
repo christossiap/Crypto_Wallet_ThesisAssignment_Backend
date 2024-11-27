@@ -13,14 +13,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
 @CrossOrigin(origins = "http://192.168.122.30:3000/") // Allow requests from frontend running on http://192.168.122.30:3000/
 @RestController
 @RequestMapping(path = "/api/coin/",produces = "application/json")
@@ -31,27 +29,32 @@ public class CryptoCoinController {
     @Autowired
     private CryptoCoinService cryptoCoinService;
 
-    @GetMapping(value = "/crypto/{name}")
+    @GetMapping("/crypto/{name}")
     public ResponseEntity<CryptoCoin> handleRequest1(@PathVariable @Valid String name) throws ResourceNotFoundException {
         CryptoCoin coin = cryptoCoinService.getCryptoCoinByName(name);
         return ResponseEntity.ok(coin);
     }
 
-    @GetMapping(value = "/cryptos/{id}")
+    @GetMapping("/cryptos/{id}")
     public ResponseEntity<CryptoCoin> handleRequest4(@PathVariable @Valid Integer id) throws ResourceNotFoundException {
         CryptoCoin coin = cryptoCoinService.getCryptoCoinById(id);
         return ResponseEntity.ok(coin);
     }
 
-    @GetMapping(value = "/cryptos")
+    @GetMapping("/cryptos")
     public ResponseEntity<List<CryptoCoin>> handleRequest2() throws ResourceNotFoundException {
         return ResponseEntity.ok(cryptoCoinService.getAllCryptoCoins());
     }
 
-    @GetMapping(value = "/test")
+    @GetMapping("/test")
     public ResponseEntity<List<CryptoCoin>> handleRequest3(){
         List<CryptoCoin> cryptoCoins = cryptoCoinService.searchCryptoCoins(null,null,
                 5.0,null);
         return ResponseEntity.ok(cryptoCoins);
+    }
+
+    @PostMapping(value = "/addcoin", consumes = "application/json")
+    public ResponseEntity<CryptoCoin> handleRequest4(@Valid @RequestBody CryptoCoin coin){
+        return ResponseEntity.ok(cryptoCoinService.addCryptoCoin(coin));
     }
 }

@@ -1,22 +1,27 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.services.auth;
 
+import com.unipi.christossiap.crypto_wallet_thesisassignment.models.Portfolio;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.models.UserProfile;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.models.WatchList;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.auth.Role;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.auth.User;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.repositories.auth.RoleRepository;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.repositories.auth.UserRepository;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.services.email.EmailTemplates;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.AuthException;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.UserInfo;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
@@ -34,11 +39,16 @@ public class AuthService implements UserDetailsService {
     public PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserService userService;
-
-    @Autowired
     public EmailTemplates emailTemplates;
 
+
+    public User getUser(){
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+        return userRepository.findUserByUsername(authentication.getName());
+    }
+    public List<User> getAllUsers(){return userRepository.findAll();}
+    public List<UserInfo> getAllUserDetails(){return userRepository.findUserInfo();}
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -67,12 +77,29 @@ public class AuthService implements UserDetailsService {
         user.setStatus("Unverified");
         Random r = new Random();
         user.setCode(String.valueOf(r.nextInt(1000)));
+        // Handle associations with WatchList, Portfolio, and UserProfile
+        // Create new WatchList, Portfolio, and UserProfile if they are null (or just set if they already exist)
+        WatchList watchList = new WatchList();
+        Portfolio portfolio = new Portfolio();
+        UserProfile userProfile = new UserProfile();
+
+        // Associate these with the user
+        user.setWatchList(watchList);
+        user.setPortfolio(portfolio);
+        user.setUserProfile(userProfile);
+
+        // Set the reverse side of the relationships to ensure bidirectional consistency
+        watchList.setUser(user);
+        portfolio.setUser(user);
+        userProfile.setUser(user);
+
+        // Save the user, which will cascade the changes to WatchList, Portfolio, and UserProfile
         userRepository.save(user);
-        try {
-            emailTemplates.sendEmailCompleteRegister(user);
-        } catch (MessagingException e) {
-            throw new RuntimeException(e);
-        }
+//        try {
+//            emailTemplates.sendEmailCompleteRegister(user);
+//        } catch (MessagingException e) {
+//            throw new RuntimeException(e);
+//        }
     }
 
     public Boolean registerComplete(String code){

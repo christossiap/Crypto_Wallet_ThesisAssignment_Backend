@@ -19,11 +19,21 @@ public class WatchList {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToMany(mappedBy = "watchLists")
     private List<CryptoCoin> cryptoCoins = new ArrayList<>();
+
+    public void addCryptoCoin(CryptoCoin cryptoCoin){
+        if (!cryptoCoins.contains(cryptoCoin)) {
+            cryptoCoins.add(cryptoCoin);
+        }
+        // Ensure bidirectional consistency: add the WatchList to the CryptoCoin's watchLists
+        if (!cryptoCoin.getWatchLists().contains(this)) {
+            cryptoCoin.getWatchLists().add(this);
+        }
+    }
 
 }

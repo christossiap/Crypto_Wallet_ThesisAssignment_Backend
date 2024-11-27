@@ -16,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.file.AccessDeniedException;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -55,5 +56,13 @@ public class AuthController {
         authService.registerUser(user);
 
         return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
+    @PostMapping("/register-complete")
+    public ResponseEntity<String> handleRequest3(@Valid @RequestBody Map<String,String> map){
+        if (authService.registerComplete(map.get("Code"))){
+            return ResponseEntity.ok("success");
+        }else
+            return ResponseEntity.ok("registration failed...");
     }
 }
