@@ -34,4 +34,13 @@ public class Transaction {
     @JsonIgnore
     private List<CryptoCoin> cryptoCoins = new ArrayList<>();
 
+    public void addCryptoCoin(CryptoCoin cryptoCoin){
+        if (!cryptoCoins.contains(cryptoCoin)) {
+            cryptoCoins.add(cryptoCoin);
+        }
+        if (!cryptoCoin.getTransactions().contains(this)) {
+            cryptoCoin.getTransactions().add(this);
+        }
+    }
+
 }
