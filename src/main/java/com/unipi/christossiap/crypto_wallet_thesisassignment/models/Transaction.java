@@ -25,7 +25,7 @@ public class Transaction {
     private LocalDateTime transactionDate;
     private String transactionType; // BUY, SELL, TRANSFER
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     @JoinColumn(name = "portfolio_id")
     private Portfolio portfolio;

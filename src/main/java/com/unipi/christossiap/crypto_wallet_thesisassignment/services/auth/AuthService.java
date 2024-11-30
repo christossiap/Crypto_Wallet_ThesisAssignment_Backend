@@ -10,12 +10,14 @@ import com.unipi.christossiap.crypto_wallet_thesisassignment.repositories.auth.U
 import com.unipi.christossiap.crypto_wallet_thesisassignment.services.email.EmailTemplates;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.AuthException;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.UserInfo;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.ResourceNotFoundException;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -41,12 +43,17 @@ public class AuthService implements UserDetailsService {
     @Autowired
     public EmailTemplates emailTemplates;
 
+    public void saveUser(User user){userRepository.save(user);}
 
-    public User getUser(){
+
+    public User getUser() throws ResourceNotFoundException {
         Authentication authentication =
                 SecurityContextHolder.getContext().getAuthentication();
-        return userRepository.findUserByUsername(authentication.getName());
+        User user = userRepository.findUserByUsername(authentication.getName());
+        if (user == null) {throw new ResourceNotFoundException("User not found in authentication context.");}
+        return user;
     }
+
     public List<User> getAllUsers(){return userRepository.findAll();}
     public List<UserInfo> getAllUserDetails(){return userRepository.findUserInfo();}
 
@@ -68,32 +75,19 @@ public class AuthService implements UserDetailsService {
     }
 
     public void registerUser(User user) {
+        userRepository.save(user); //για να πάρει ID
         Role role = roleRepository.findRoleByName("USER");
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
         user.addRole(role);
+        user.addWatchList(new WatchList());
+        user.addPortfolio(new Portfolio());
+        user.addUserProfile(new UserProfile());
 
     // Verification user με το Mail
         user.setStatus("Unverified");
         Random r = new Random();
         user.setCode(String.valueOf(r.nextInt(1000)));
-        // Handle associations with WatchList, Portfolio, and UserProfile
-        // Create new WatchList, Portfolio, and UserProfile if they are null (or just set if they already exist)
-        WatchList watchList = new WatchList();
-        Portfolio portfolio = new Portfolio();
-        UserProfile userProfile = new UserProfile();
-
-        // Associate these with the user
-        user.setWatchList(watchList);
-        user.setPortfolio(portfolio);
-        user.setUserProfile(userProfile);
-
-        // Set the reverse side of the relationships to ensure bidirectional consistency
-        watchList.setUser(user);
-        portfolio.setUser(user);
-        userProfile.setUser(user);
-
-        // Save the user, which will cascade the changes to WatchList, Portfolio, and UserProfile
         userRepository.save(user);
 //        try {
 //            emailTemplates.sendEmailCompleteRegister(user);
@@ -110,6 +104,17 @@ public class AuthService implements UserDetailsService {
         user.setStatus("verified");
         userRepository.save(user);
         return true;
+    }
+
+    public void changePassword(User user, String password){
+        String encodedPassword = passwordEncoder.encode(password);
+        user.setPassword(encodedPassword);
+        userRepository.save(user);
+    }
+
+    public void deleteUser() throws ResourceNotFoundException {
+        User user = getUser();
+        userRepository.delete(user);
     }
 
     private Collection<? extends GrantedAuthority> getAuthorities(Collection<String> roles) {

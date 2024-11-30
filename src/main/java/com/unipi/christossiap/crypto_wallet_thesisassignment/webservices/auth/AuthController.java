@@ -4,6 +4,8 @@ import com.unipi.christossiap.crypto_wallet_thesisassignment.configuration.auth.
 import com.unipi.christossiap.crypto_wallet_thesisassignment.configuration.auth.jwt.JwtTokenProvider;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.auth.User;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.services.auth.AuthService;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.AuthException;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.ResourceNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -64,5 +66,27 @@ public class AuthController {
             return ResponseEntity.ok("success");
         }else
             return ResponseEntity.ok("registration failed...");
+    }
+
+
+
+    @PostMapping("/change-password")
+    public ResponseEntity<?> handleRequest5 (@Valid @RequestBody Map<String, String> map) throws ResourceNotFoundException {
+        User user = authService.getUser();
+        if (user==null)
+            throw new AuthException("You are not logged in!");
+        String password = map.get("password");
+        authService.changePassword (user, password);
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/delete-user")
+    public ResponseEntity<String> handleRequest4(){
+        try {
+            authService.deleteUser();
+            return ResponseEntity.ok("User and related entities deleted successfully.");
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+        }
     }
 }

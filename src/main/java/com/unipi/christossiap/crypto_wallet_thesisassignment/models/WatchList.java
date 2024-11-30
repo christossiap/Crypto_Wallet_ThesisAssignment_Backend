@@ -19,8 +19,9 @@ public class WatchList {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToOne
-    @JoinColumn(name = "user_id")
+    @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
+    @JoinColumn(name = "user_id", unique = true)
     private User user;
 
     @ManyToMany(mappedBy = "watchLists")
@@ -34,6 +35,10 @@ public class WatchList {
         if (!cryptoCoin.getWatchLists().contains(this)) {
             cryptoCoin.getWatchLists().add(this);
         }
+    }
+    public void removeCryptoCoin(CryptoCoin cryptoCoin) {
+        cryptoCoins.remove(cryptoCoin);
+        cryptoCoin.getWatchLists().remove(this);
     }
 
 }

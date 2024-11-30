@@ -24,9 +24,9 @@ public class Portfolio {
     @ManyToMany(mappedBy = "portfolios")
     private List<CryptoCoin> cryptoCoins = new ArrayList<>();
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @MapsId
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", unique = true)
     private User user;
 
     @OneToMany(mappedBy = "portfolio")

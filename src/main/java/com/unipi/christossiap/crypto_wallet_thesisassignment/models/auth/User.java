@@ -15,6 +15,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.sound.sampled.Port;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,16 +39,14 @@ public class User {
     @Email
 //    @EmailNotExistsConstraint(message = "Το e-mail που δώσατε χρησιμοποιείται από άλλον χρήστη. Επιλέξτε νέο!")
     private String email;
-
     private String status;
     private String code;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Notification> notifications = new ArrayList<>();
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private WatchList watchList;
-
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Portfolio portfolio;
@@ -67,5 +66,20 @@ public class User {
 
     public void addRole(Role role) {
         roles.add(role);
+        role.getUsers().add(this);
+    }
+
+    public void addWatchList(WatchList watchList){
+        this.setWatchList(watchList);
+        watchList.setUser(this);
+    }
+    public void addPortfolio(Portfolio portfolio){
+        this.setPortfolio(portfolio);
+        portfolio.setUser(this);
+    }
+
+    public void addUserProfile(UserProfile userProfile){
+        this.setUserProfile(userProfile);
+        userProfile.setUser(this);
     }
 }

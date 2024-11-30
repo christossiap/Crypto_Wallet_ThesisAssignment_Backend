@@ -4,6 +4,7 @@ package com.unipi.christossiap.crypto_wallet_thesisassignment.webservices.auth;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.UserInfo;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.auth.User;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.services.auth.AuthService;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.ResourceNotFoundException;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.webservices.auth.AuthController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +36,7 @@ public class UserController {
     }
 
     @GetMapping("/user")
-    public ResponseEntity<User> handleRequest3(){
+    public ResponseEntity<User> handleRequest3() throws ResourceNotFoundException {
         return ResponseEntity.ok(authService.getUser());
 
     }

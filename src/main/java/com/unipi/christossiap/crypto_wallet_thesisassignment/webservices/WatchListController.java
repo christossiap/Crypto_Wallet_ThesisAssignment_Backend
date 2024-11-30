@@ -1,6 +1,7 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.webservices;
 
 
+import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.WatchListInfo;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.WatchList;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.services.CryptoCoinService;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.services.WatchListService;
@@ -22,21 +23,24 @@ public class WatchListController {
     @Autowired
     private WatchListService watchListService;
 
-    @GetMapping("/watchlists")
-    public ResponseEntity<List<WatchList>> handleRequest2() {
-        Authentication authentication =
-                SecurityContextHolder.getContext().getAuthentication();
-        System.out.println("Name: " + authentication.getName());
-        System.out.println("credentials: " + authentication.getCredentials());
-        System.out.println("authorities: " + authentication.getAuthorities());
-        System.out.println("principal: " + authentication.getPrincipal());
-        System.out.println("details: " + authentication.getDetails());
-        return new ResponseEntity<>(watchListService.getWatchList(), HttpStatus.OK);
+    @GetMapping("/mywatchlist")
+    public ResponseEntity<List<WatchListInfo>> handleRequest4() throws ResourceNotFoundException {
+        return ResponseEntity.ok(watchListService.getUserWatchList());
     }
 
     @PostMapping(value = "/addcointowatchlist", consumes = "application/json")
-    public ResponseEntity<String> handleRequest3(@Valid @RequestBody Map<String,String> coin) throws ResourceNotFoundException {
-        watchListService.addToWatchList(coin.get("name"));
+    public ResponseEntity<String> handleRequest3(@Valid @RequestBody Map<String, String> coin) throws ResourceNotFoundException {
+        watchListService.addCoinToWatchList(coin.get("name"));
         return ResponseEntity.ok("Successfully added..!");
+    }
+    @DeleteMapping(value = "/deletecoinfromwatchlist")
+    public ResponseEntity<String> handleRequest4(@Valid @RequestBody Map<String, String> coin) throws ResourceNotFoundException {
+        watchListService.deleteCoinFromWatchList(coin.get("name"));
+        return ResponseEntity.ok("Deleted..");
+    }
+    @DeleteMapping("/clearwatchlist")
+    public ResponseEntity<String> clearWatchlist() throws ResourceNotFoundException {
+        watchListService.clearWatchlist();
+        return ResponseEntity.ok("Watchlist cleared.");
     }
 }

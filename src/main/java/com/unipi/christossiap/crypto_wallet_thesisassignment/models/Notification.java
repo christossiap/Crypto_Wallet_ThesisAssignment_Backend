@@ -21,7 +21,7 @@ public class Notification {
     private Boolean isRead;
     private LocalDateTime sentAt;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 

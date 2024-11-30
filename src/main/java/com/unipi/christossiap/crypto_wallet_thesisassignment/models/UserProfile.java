@@ -17,8 +17,8 @@ public class UserProfile {
     private String preferredCurrency; // e.g., USD, EUR
     private String notificationPreferences; // How users want to receive notifications
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @MapsId
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", unique = true)
     private User user;
 }
