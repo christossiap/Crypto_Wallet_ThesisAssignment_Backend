@@ -3,8 +3,10 @@ package com.unipi.christossiap.crypto_wallet_thesisassignment.services;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.UserPortfolioInfo;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.Portfolio;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.WatchList;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.models.associations.CryptoCoinPortfolio;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.auth.User;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.repositories.PortfolioRepository;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.services.associations.CryptoCoinPortfolioService;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.services.auth.AuthService;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
@@ -24,6 +26,8 @@ public class PortfolioService {
     private PortfolioRepository portfolioRepository;
     @Autowired
     private AuthService authService;
+    @Autowired
+    private CryptoCoinPortfolioService cryptoCoinPortfolioService;
     private static final Logger logger = LoggerFactory.getLogger(PortfolioService.class);
 
     public void savePortfolio(Portfolio portfolio) {
@@ -32,6 +36,16 @@ public class PortfolioService {
     public Boolean isPortfolioNull(Portfolio portfolio){
         return portfolio == null;
     }
+
+    public Double getPortfolioValuation(Portfolio portfolio) {
+        List<CryptoCoinPortfolio> coins = cryptoCoinPortfolioService.getAllCoinsInPortfolio(portfolio);
+        return coins.stream()
+                .mapToDouble(c -> c.getCoinAmount() * c.getCryptoCoin().getPrice())
+                .sum();
+    }
+
+
+    @Transactional
     public void addNewPortfolioIfNecessary(User user, Portfolio portfolio){
         if (isPortfolioNull(portfolio)){
             Portfolio newPortfolio = new Portfolio();
@@ -39,6 +53,7 @@ public class PortfolioService {
             authService.saveUser(user);
         }
     }
+    @Transactional
     public Portfolio getPortfolioByUserId(Integer id) throws ResourceNotFoundException {
         User user = authService.getUser();
         addNewPortfolioIfNecessary(user,portfolioRepository.findPortfolioByUserId(id));
@@ -60,6 +75,11 @@ public class PortfolioService {
         User user = authService.getUser();
         Portfolio portfolio = getPortfolioByUserId(user.getId());
         portfolio.setBalance(portfolio.getBalance() + balance);
+        savePortfolio(portfolio);
+    }
+    @Transactional
+    public void setBalance(Portfolio portfolio, Double newBalance) throws ResourceNotFoundException {
+        portfolio.setBalance(newBalance);
         savePortfolio(portfolio);
     }
 

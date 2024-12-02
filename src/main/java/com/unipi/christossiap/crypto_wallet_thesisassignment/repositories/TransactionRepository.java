@@ -11,4 +11,8 @@ import java.util.List;
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction,Integer> {
     List<Transaction> findAllByTransactionDateAfterAndTransactionDateBefore(LocalDateTime localDateTime1, LocalDateTime localDateTime2);
+
+    List<Transaction> findByTransactionTypeAndPortfolio_UserId(String transactionType, Integer id);
+
+    List<Transaction> findByPortfolio_UserId(Integer id);
 }

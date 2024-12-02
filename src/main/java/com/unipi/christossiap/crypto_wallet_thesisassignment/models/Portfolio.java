@@ -19,8 +19,6 @@ public class Portfolio {
 
     private Double balance;
 
-    private Double coinAmount;
-
     @ManyToMany(mappedBy = "portfolios")
     private List<CryptoCoin> cryptoCoins = new ArrayList<>();
 
@@ -30,5 +28,26 @@ public class Portfolio {
     private User user;
 
     @OneToMany(mappedBy = "portfolio")
-    private List<Transaction> transaction = new ArrayList<>();
+    private List<Transaction> transactions = new ArrayList<>();
+
+    public void addCryptoCoin(CryptoCoin cryptoCoin){
+        if (!cryptoCoins.contains(cryptoCoin)) {
+            cryptoCoins.add(cryptoCoin);
+        }
+        if (!cryptoCoin.getPortfolios().contains(this)) {
+            cryptoCoin.getPortfolios().add(this);
+        }
+    }
+    public void removeCryptoCoin(CryptoCoin cryptoCoin){
+        if (!cryptoCoins.contains(cryptoCoin)) {
+            cryptoCoins.remove(cryptoCoin);
+        }
+        if (!cryptoCoin.getPortfolios().contains(this)) {
+            cryptoCoin.getPortfolios().remove(this);
+        }
+    }
+    public void addTransaction(Transaction transaction){
+        transactions.add(transaction);
+        transaction.setPortfolio(this);
+    }
 }
