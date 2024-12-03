@@ -23,22 +23,22 @@ public class WatchListController {
     @Autowired
     private WatchListService watchListService;
 
-    @GetMapping("/mywatchlist")
+    @GetMapping("/my-watchlist")
     public ResponseEntity<List<WatchListInfo>> handleRequest4() throws ResourceNotFoundException {
         return ResponseEntity.ok(watchListService.getUserWatchList());
     }
 
-    @PostMapping(value = "/addcointowatchlist", consumes = "application/json")
+    @PostMapping(value = "/add-coin-to-watchlist", consumes = "application/json")
     public ResponseEntity<String> handleRequest3(@Valid @RequestBody Map<String, String> coin) throws ResourceNotFoundException {
         watchListService.addCoinToWatchList(coin.get("name"));
         return ResponseEntity.ok("Successfully added..!");
     }
-    @DeleteMapping(value = "/deletecoinfromwatchlist")
+    @DeleteMapping(value = "/delete-coin-from-watchlist")
     public ResponseEntity<String> handleRequest4(@Valid @RequestBody Map<String, String> coin) throws ResourceNotFoundException {
         watchListService.deleteCoinFromWatchList(coin.get("name"));
         return ResponseEntity.ok("Deleted..");
     }
-    @DeleteMapping("/clearwatchlist")
+    @DeleteMapping("/clear-watchlist")
     public ResponseEntity<String> clearWatchlist() throws ResourceNotFoundException {
         watchListService.clearWatchlist();
         return ResponseEntity.ok("Watchlist cleared.");

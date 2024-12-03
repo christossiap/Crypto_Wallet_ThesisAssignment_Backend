@@ -33,12 +33,20 @@ public class TransactionService {
 
     public void saveTransaction(Transaction transaction){transactionRepository.save(transaction);}
 
+    public List<Transaction> getUserTransactions(){
+        try {
+            User user = authService.getUser();
+            return transactionRepository.findByPortfolio_UserId(user.getPortfolio().getId());
+        } catch (ResourceNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
     public List<Transaction> getTransactionsByDate(LocalDateTime localDateTime1,LocalDateTime localDateTime2) throws ResourceNotFoundException {
         User user = authService.getUser();
         List<Transaction> transactions = transactionRepository.findAllByTransactionDateAfterAndTransactionDateBefore(localDateTime1,localDateTime2);
         List<Transaction> t = new ArrayList<>();
         for (Transaction transaction : transactions){
-            if (Objects.equals(transaction.getPortfolio().getUser().getId(), user.getId())){
+            if (Objects.equals(transaction.getPortfolio().getUser().getId(), user.getPortfolio().getId())){
                 t.add(transaction);
             }
         }
@@ -46,7 +54,7 @@ public class TransactionService {
     }
     public List<Transaction> getTransactionsByType(String transactionType) throws ResourceNotFoundException {
         User user = authService.getUser();
-        return transactionRepository.findByTransactionTypeAndPortfolio_UserId(transactionType, user.getId());
+        return transactionRepository.findByTransactionTypeAndPortfolio_UserId(transactionType, user.getPortfolio().getId());
     }
 
     public List<Transaction> getAllTransactions() throws ResourceNotFoundException {
@@ -68,7 +76,6 @@ public class TransactionService {
 //        return new TransactionSummary(totalBuy, totalSell, totalBuy - totalSell);
 //    }
     //needs checking
-
 
     @Transactional
     public void deleteTransaction(Integer transactionId) throws ResourceNotFoundException {
@@ -113,7 +120,7 @@ public class TransactionService {
         }
     }
     @Transactional
-    private void recordTransaction(Portfolio portfolio, CryptoCoin coin, Double amount, String transactionType) {
+    public void recordTransaction(Portfolio portfolio, CryptoCoin coin, Double amount, String transactionType) {
         Transaction transaction = new Transaction();
         transaction.setAmount(amount);
         transaction.setPriceAtTransaction(coin.getPrice());

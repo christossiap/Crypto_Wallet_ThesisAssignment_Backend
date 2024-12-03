@@ -15,13 +15,13 @@ import java.util.List;
 @Repository
 public interface CryptoCoinPortfolioRepository extends JpaRepository<CryptoCoinPortfolio,Integer> {
 
-    @Query("select CryptoCoinPortfolio.coinAmount" +
-            "   from Portfolio p " +
-            "join CryptoCoinPortfolio cp on p.id = cp.portfolio.id" +
-            "   join CryptoCoin c on c.id = cp.cryptoCoin.id" +
-            "   where c.id=:coin_id" +
-            "   and p.id=:p_id")
-    Double findCoinAmountByCoinIdAndPortfolioId(@Param("coin_id")Integer coin_id, @Param("p_id") Integer p_id);
+    @Query("select cp.coinAmount " +
+            "from CryptoCoinPortfolio cp " +
+            "join cp.portfolio p " +
+            "join cp.cryptoCoin c " +
+            "where c.id = :coin_id and p.id = :p_id")
+    Double findCoinAmountByCoinIdAndPortfolioId(@Param("coin_id") Integer coin_id, @Param("p_id") Integer p_id);
+
 
     CryptoCoinPortfolio findByPortfolioAndCryptoCoin(Portfolio portfolio, CryptoCoin coin);
 

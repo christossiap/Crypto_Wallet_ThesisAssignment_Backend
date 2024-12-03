@@ -56,7 +56,6 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> handleRequest2(@Valid @RequestBody User user) {
         authService.registerUser(user);
-
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
@@ -67,8 +66,6 @@ public class AuthController {
         }else
             return ResponseEntity.ok("registration failed...");
     }
-
-
 
     @PostMapping("/change-password")
     public ResponseEntity<?> handleRequest5 (@Valid @RequestBody Map<String, String> map) throws ResourceNotFoundException {

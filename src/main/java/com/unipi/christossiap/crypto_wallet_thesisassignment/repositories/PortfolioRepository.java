@@ -14,7 +14,7 @@ import java.util.List;
 public interface PortfolioRepository extends JpaRepository<Portfolio,Integer> {
     Portfolio findPortfolioByUserId(Integer userid);
 
-    @Query("SELECT new com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.UserPortfolioInfo(u.username, p.balance, c.name, p.coinAmount) " +
+    @Query("SELECT new com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.UserPortfolioInfo(u.username, p.balance, c.name, cp.coinAmount) " +
             "FROM Portfolio p " +
             "JOIN p.user u " +
             "JOIN CryptoCoinPortfolio cp ON p.id = cp.portfolio.id " +
