@@ -2,6 +2,7 @@ package com.unipi.christossiap.crypto_wallet_thesisassignment.models;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jdk.dynalink.linker.LinkerServices;
 import lombok.AllArgsConstructor;
@@ -16,6 +17,10 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Schema(
+        name = "CryptoCoin",
+        description = "The CryptoCoin used in Cryptio"
+) //Για το Swagger-Documentation details...
 public class CryptoCoin {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -39,15 +39,7 @@ public class Portfolio {
         }
     }
     public void removeCryptoCoin(CryptoCoin cryptoCoin){
-        if (!cryptoCoins.contains(cryptoCoin)) {
-            cryptoCoins.remove(cryptoCoin);
-        }
-        if (!cryptoCoin.getPortfolios().contains(this)) {
-            cryptoCoin.getPortfolios().remove(this);
-        }
-    }
-    public void addTransaction(Transaction transaction){
-        transactions.add(transaction);
-        transaction.setPortfolio(this);
+        cryptoCoins.remove(cryptoCoin);
+        cryptoCoin.getPortfolios().remove(this);
     }
 }

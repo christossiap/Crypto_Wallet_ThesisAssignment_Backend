@@ -13,6 +13,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +32,7 @@ public class TransactionService {
     private AuthService authService;
     @Autowired
     private CryptoCoinPortfolioService cryptoCoinPortfolioService;
+    private static final Logger logger = LoggerFactory.getLogger(TransactionService.class);
 
     public void saveTransaction(Transaction transaction){transactionRepository.save(transaction);}
 
@@ -100,8 +103,7 @@ public class TransactionService {
             }
             portfolioService.setBalance(portfolio, balance - totalPrice);
             portfolio.addCryptoCoin(coin);
-            Double oldAmount = cryptoCoinPortfolioService.getCoinAmountOfCryptoCoin(portfolio,coin);
-            cryptoCoinPortfolioService.updateAmountOfCryptoCoin(portfolio,oldAmount,coin);
+            cryptoCoinPortfolioService.updateAmountOfCryptoCoin(portfolio,amount,coin);
             portfolioService.savePortfolio(portfolio);
             recordTransaction(portfolio,coin,amount,transactionType);
         } else if (transactionType.equals("SELL")) {
@@ -111,6 +113,7 @@ public class TransactionService {
             portfolioService.setBalance(portfolio, balance + totalPrice);
             cryptoCoinPortfolioService.updateAmountOfCryptoCoin(portfolio,-amount,coin);
             if (cryptoCoinPortfolioService.getCoinAmountOfCryptoCoin(portfolio,coin)==0.0){
+                logger.info("yyyy");
                 portfolio.removeCryptoCoin(coin);
             }
             portfolioService.savePortfolio(portfolio);
@@ -127,6 +130,7 @@ public class TransactionService {
         transaction.setTransactionDate(LocalDateTime.now());
         transaction.setTransactionType(transactionType);
         transaction.setPortfolio(portfolio);
+        transaction.addCryptoCoin(coin);
         saveTransaction(transaction);
     }
 }

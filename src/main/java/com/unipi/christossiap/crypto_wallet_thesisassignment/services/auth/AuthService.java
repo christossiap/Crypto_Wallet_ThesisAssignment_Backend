@@ -24,6 +24,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.sound.sampled.Port;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
@@ -81,7 +82,9 @@ public class AuthService implements UserDetailsService {
         user.setPassword(encodedPassword);
         user.addRole(role);
         user.addWatchList(new WatchList());
-        user.addPortfolio(new Portfolio());
+        Portfolio portfolio = new Portfolio();
+        portfolio.setBalance(0.0);
+        user.addPortfolio(portfolio);
         user.addUserProfile(new UserProfile());
 
     // Verification user με το Mail
