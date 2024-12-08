@@ -1,4 +1,4 @@
-package com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.ApiCryptoCoinCap;
+package com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.ApiCryptoCoinCapData;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

@@ -6,7 +6,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface CryptoCoinRepository extends JpaRepository<CryptoCoin, Integer>, JpaSpecificationExecutor<CryptoCoin> {
+public interface CryptoCoinRepository extends JpaRepository<CryptoCoin, Integer>,
+                                              JpaSpecificationExecutor<CryptoCoin> {
     CryptoCoin findCryptoCoinById(int id);
     CryptoCoin findCryptoCoinByName(String name);
     CryptoCoin findCryptoCoinByNameAndId(String name, int id);

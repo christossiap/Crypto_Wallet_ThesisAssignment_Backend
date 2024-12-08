@@ -1,8 +1,8 @@
-package com.unipi.christossiap.crypto_wallet_thesisassignment.services.ApiCryptoCoinCap;
+package com.unipi.christossiap.crypto_wallet_thesisassignment.services.ApiCryptoCoinCapService;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.ApiCryptoCoinCap.CryptoApiResponse;
-import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.ApiCryptoCoinCap.CryptoData;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.ApiCryptoCoinCapData.CryptoApiResponse;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.ApiCryptoCoinCapData.CryptoData;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.CryptoCoin;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.repositories.CryptoCoinRepository;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.services.CryptoCoinService;
@@ -14,7 +14,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -35,7 +34,6 @@ public class CryptoApiService {
 
     @Value("${api.url}")
     private String apiUrl;
-
 
     //@Scheduled(fixedRate = 60000) // 1 minute in milliseconds
     //@Scheduled(fixedRate = 3600000) // 1 hour in milliseconds
@@ -78,7 +76,7 @@ public class CryptoApiService {
                     coin.setPercentChange24h(cryptoData.getQuote().getUsd().getPercentChange24h());
                     coin.setMarketCap(cryptoData.getQuote().getUsd().getMarketCap());
                     coin.setLastUpdated(LocalDateTime.parse(cryptoData.getQuote().getUsd().getLastUpdated(), DateTimeFormatter.ISO_DATE_TIME));
-                    cryptoCoinService.addCryptoCoin(coin);
+                    cryptoCoinService.saveCryptoCoin(coin);
                 }
             }
         } catch (Exception e) {

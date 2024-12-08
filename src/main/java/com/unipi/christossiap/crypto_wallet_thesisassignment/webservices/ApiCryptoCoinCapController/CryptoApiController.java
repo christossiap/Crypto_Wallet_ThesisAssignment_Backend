@@ -1,6 +1,6 @@
-package com.unipi.christossiap.crypto_wallet_thesisassignment.webservices.ApiCryptoCoinCap;
+package com.unipi.christossiap.crypto_wallet_thesisassignment.webservices.ApiCryptoCoinCapController;
 
-import com.unipi.christossiap.crypto_wallet_thesisassignment.services.ApiCryptoCoinCap.CryptoApiService;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.services.ApiCryptoCoinCapService.CryptoApiService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
