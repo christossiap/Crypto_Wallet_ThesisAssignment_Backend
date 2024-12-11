@@ -27,7 +27,7 @@ public class CryptoCoinService {
 
     public void saveCryptoCoin(CryptoCoin coin){cryptoCoinRepository.save(coin);}
 
-    @Cacheable(value = "my-cache", key = "'coin' + #name", sync = true)
+//    @Cacheable(value = "my-cache", key = "'coin' + #name", sync = true)
     public CryptoCoin getCryptoCoinByName(String name) throws ResourceNotFoundException {
         CryptoCoin coin = cryptoCoinRepository.findCryptoCoinByName(name);
         if (coin == null){
@@ -36,7 +36,7 @@ public class CryptoCoinService {
         return coin;
     }
 
-    @Cacheable(value = "my-cache", key = "'coin-' + #id",sync = true)
+//    @Cacheable(value = "my-cache", key = "'coin-' + #id",sync = true)
     public CryptoCoin getCryptoCoinById(Integer id) throws ResourceNotFoundException {
         CryptoCoin coin = cryptoCoinRepository.findCryptoCoinById(id);
         if (coin == null){

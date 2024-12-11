@@ -1,6 +1,6 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.services;
 
-import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.TransactionSummary;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.enums.NotificationType;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.CryptoCoin;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.Portfolio;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.Transaction;
@@ -11,6 +11,9 @@ import com.unipi.christossiap.crypto_wallet_thesisassignment.services.auth.AuthS
 import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import org.slf4j.Logger;
@@ -32,18 +35,37 @@ public class TransactionService {
     private AuthService authService;
     @Autowired
     private CryptoCoinPortfolioService cryptoCoinPortfolioService;
+    @Autowired
+    private NotificationService notificationService;
     private static final Logger logger = LoggerFactory.getLogger(TransactionService.class);
 
     public void saveTransaction(Transaction transaction){transactionRepository.save(transaction);}
-
-    public List<Transaction> getUserTransactions(){
-        try {
-            User user = authService.getUser();
-            return transactionRepository.findByPortfolio_UserId(user.getPortfolio().getId());
-        } catch (ResourceNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+    @Transactional
+    public void recordTransaction(Portfolio portfolio, CryptoCoin coin, Double amount, String transactionType) {
+        Transaction transaction = new Transaction();
+        transaction.setAmount(amount);
+        transaction.setPriceAtTransaction(coin.getPrice());
+        transaction.setTransactionDate(LocalDateTime.now());
+        transaction.setTransactionType(transactionType);
+        transaction.setPortfolio(portfolio);
+        transaction.addCryptoCoin(coin);
+        saveTransaction(transaction);
     }
+    public List<Transaction> getUserTransactionsPagedAndSorted(Integer page, Integer size, String sortBy, String sortOrder) throws ResourceNotFoundException {
+        User user = authService.getUser();
+        Sort sort = (sortBy != null && sortOrder != null)
+                ? Sort.by(Sort.Direction.fromString(sortOrder), sortBy)
+                : Sort.unsorted();
+
+        if (page != null && size != null) {
+            PageRequest pageable = PageRequest.of(page, size, sort);
+            Page<Transaction> result = transactionRepository.findAllByPortfolioId(pageable,user.getPortfolio().getId());
+            return result.hasContent() ? result.getContent() : new ArrayList<>();
+        }
+
+        return transactionRepository.findAllByPortfolioId(sort, user.getPortfolio().getId());
+    }
+
     public List<Transaction> getTransactionsByDate(LocalDateTime localDateTime1,LocalDateTime localDateTime2) throws ResourceNotFoundException {
         User user = authService.getUser();
         List<Transaction> transactions = transactionRepository.findAllByTransactionDateAfterAndTransactionDateBefore(localDateTime1,localDateTime2);
@@ -60,16 +82,9 @@ public class TransactionService {
         return transactionRepository.findByTransactionTypeAndPortfolio_UserId(transactionType, user.getPortfolio().getId());
     }
 
-    public List<Transaction> getAllTransactions() throws ResourceNotFoundException {
-        List<Transaction> list = transactionRepository.findAll();
-        if (list.isEmpty()){
-            throw new ResourceNotFoundException("Δεν βρέθηκαν transactions");
-        }
-        return list;
-    }
 //    public TransactionSummary getTransactionSummary() throws ResourceNotFoundException {
 //        User user = authService.getUser();
-//        List<Transaction> transactions = transactionRepository.findByPortfolio_UserId(user.getId());
+//        List<Transaction> transactions = transactionRepository.findAllByPortfolioId(user.getPortfolio().getId());
 //        double totalBuy = transactions.stream()
 //                .filter(t -> t.getTransactionType().equals("BUY"))
 //                .mapToDouble(Transaction::getAmount).sum();
@@ -78,18 +93,12 @@ public class TransactionService {
 //                .mapToDouble(Transaction::getAmount).sum();
 //        return new TransactionSummary(totalBuy, totalSell, totalBuy - totalSell);
 //    }
-    //needs checking
-
-    @Transactional
-    public void deleteTransaction(Integer transactionId) throws ResourceNotFoundException {
-        if (!transactionRepository.existsById(transactionId)) {
-            throw new ResourceNotFoundException("Transaction not found with id: " + transactionId);
-        }
-        transactionRepository.deleteById(transactionId);
-    }
 
     @Transactional
     public void processTransaction(String cryptoCoinName, Double amount, String transactionType) throws Exception {
+        if (amount == null || amount <= 0) {
+            throw new IllegalArgumentException("Amount must be greater than zero.");
+        }
         CryptoCoin coin = cryptoCoinService.getCryptoCoinByName(cryptoCoinName);
         User user = authService.getUser();
         Portfolio portfolio = user.getPortfolio();
@@ -106,6 +115,17 @@ public class TransactionService {
             cryptoCoinPortfolioService.updateAmountOfCryptoCoin(portfolio,amount,coin);
             portfolioService.savePortfolio(portfolio);
             recordTransaction(portfolio,coin,amount,transactionType);
+            try {
+                // Trigger notification after transaction processing
+                notificationService.createNotification(
+                        "Transaction Successful",
+                        "Your transaction has been successfully processed.",
+                        NotificationType.TRANSACTION
+                );
+            } catch (Exception e) {
+                // Handle any potential errors
+                System.out.println("Error creating notification: " + e.getMessage());
+            }
         } else if (transactionType.equals("SELL")) {
             if (cryptoCoinPortfolioService.getCoinAmountOfCryptoCoin(portfolio,coin) < amount) {
                 throw new Exception("Insufficient coins to sell");
@@ -113,7 +133,6 @@ public class TransactionService {
             portfolioService.setBalance(portfolio, balance + totalPrice);
             cryptoCoinPortfolioService.updateAmountOfCryptoCoin(portfolio,-amount,coin);
             if (cryptoCoinPortfolioService.getCoinAmountOfCryptoCoin(portfolio,coin)==0.0){
-                logger.info("yyyy");
                 portfolio.removeCryptoCoin(coin);
             }
             portfolioService.savePortfolio(portfolio);
@@ -122,17 +141,15 @@ public class TransactionService {
             throw new IllegalArgumentException("Unknown transaction type");
         }
     }
+
     @Transactional
-    public void recordTransaction(Portfolio portfolio, CryptoCoin coin, Double amount, String transactionType) {
-        Transaction transaction = new Transaction();
-        transaction.setAmount(amount);
-        transaction.setPriceAtTransaction(coin.getPrice());
-        transaction.setTransactionDate(LocalDateTime.now());
-        transaction.setTransactionType(transactionType);
-        transaction.setPortfolio(portfolio);
-        transaction.addCryptoCoin(coin);
-        saveTransaction(transaction);
+    public void deleteTransaction(Integer transactionId) throws ResourceNotFoundException {
+        if (!transactionRepository.existsById(transactionId)) {
+            throw new ResourceNotFoundException("Transaction not found with id: " + transactionId);
+        }
+        transactionRepository.deleteById(transactionId);
     }
+
 }
 
 

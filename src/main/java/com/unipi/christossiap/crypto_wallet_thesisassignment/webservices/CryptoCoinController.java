@@ -41,44 +41,44 @@ public class CryptoCoinController {
         CryptoCoin coin = cryptoCoinService.getCryptoCoinById(id);
         return ResponseEntity.ok(coin);
     }
+
     @GetMapping("/cryptos")
     public ResponseEntity<List<CryptoCoin>> getCryptoCoins(
-            @RequestParam(value = "page", required = false) Integer page,
-            @RequestParam(value = "size", required = false) Integer size,
-            @RequestParam(value = "sortBy", required = false) String sortBy,
-            @RequestParam(value = "sortOrder", required = false) String sortOrder) {
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "size", defaultValue = "10") Integer size,
+            @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
+            @RequestParam(value = "sortOrder", defaultValue = "ASC") String sortOrder) {
 
-        if (page != null && size != null && sortBy != null && sortOrder != null) {
-            return ResponseEntity.ok(cryptoCoinService.getAllCryptoCoins(page, size, sortBy, sortOrder));
-        } else if (page != null && size != null) {
-            return ResponseEntity.ok(cryptoCoinService.getAllCryptoCoins(page, size,null,null));
-        } else if (sortBy != null && sortOrder != null) {
-            return ResponseEntity.ok(cryptoCoinService.getAllCryptoCoins(null,null,sortBy, sortOrder));
-        } else {
-            return ResponseEntity.ok(cryptoCoinService.getAllCryptoCoins(page, size, sortBy, sortOrder));
-        }
+        List<CryptoCoin> cryptoCoins = cryptoCoinService.getAllCryptoCoins(page, size, sortBy, sortOrder);
+
+        return ResponseEntity.ok(cryptoCoins);
     }
 
-    @GetMapping("/search-cryptos")
-    public ResponseEntity<List<CryptoCoin>> handleRequest3
-            (@RequestParam(required = false) String name,
-             @RequestParam(required = false) String symbol,
-             @RequestParam(required = false) Double priceGreaterThan,
-             @RequestParam(required = false) Double priceLessThan,
-             @RequestParam(required = false) Double percentageChange24hGreaterThan,
-             @RequestParam(required = false) Double percentageChange24hLessThan,
-             @RequestParam(required = false) LocalDateTime dateAfter,
-             @RequestParam(required = false) LocalDateTime startDate,
-             @RequestParam(required = false) LocalDateTime endDate){
 
-        return ResponseEntity.ok(cryptoCoinService.searchCryptoCoins(
-                name,symbol,
-                priceGreaterThan,priceLessThan,
-                percentageChange24hGreaterThan,percentageChange24hLessThan,
-                dateAfter,startDate,endDate));
+    @GetMapping("/search-cryptos")
+    public ResponseEntity<List<CryptoCoin>> searchCryptoCoins(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String symbol,
+            @RequestParam(required = false) Double priceGreaterThan,
+            @RequestParam(required = false) Double priceLessThan,
+            @RequestParam(required = false) Double percentageChange24hGreaterThan,
+            @RequestParam(required = false) Double percentageChange24hLessThan,
+            @RequestParam(required = false) LocalDateTime dateAfter,
+            @RequestParam(required = false) LocalDateTime startDate,
+            @RequestParam(required = false) LocalDateTime endDate) {
+
+        List<CryptoCoin> results = cryptoCoinService.searchCryptoCoins(
+                name, symbol,
+                priceGreaterThan, priceLessThan,
+                percentageChange24hGreaterThan, percentageChange24hLessThan,
+                dateAfter, startDate, endDate);
+
+        return ResponseEntity.ok(results);
+    }
 
 //    @PostMapping(value = "/addcoin", consumes = "application/json")
 //    public ResponseEntity<CryptoCoin> handleRequest4(@Valid @RequestBody CryptoCoin coin){
 //        return ResponseEntity.ok(cryptoCoinService.addCryptoCoin(coin));
 //    }
+
 }

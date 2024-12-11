@@ -1,9 +1,9 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.repositories;
 
-import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.WatchListInfo;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.WatchList;
-import com.unipi.christossiap.crypto_wallet_thesisassignment.models.auth.User;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -34,6 +34,13 @@ public interface WatchListRepository extends JpaRepository<WatchList, Integer> {
             "WHERE \n" +
             "    u.id = :user_id;",
             nativeQuery = true)
-    List<Object[]> getWatchListInfo(@Param("user_id") Integer user_id);
+    List<Object[]> getWatchListInfo(@Param("user_id") Integer user_id, Pageable pageable);
+
+    @Query("select c.name" +
+            "   from WatchList w " +
+            "join CryptoCoinWatchList cw on w.id = cw.watchList.id" +
+            " join CryptoCoin c on c.id = cw.cryptoCoin.id" +
+            "   where w.user.id = :user_id")
+    List<String> getWatchListCryptoCoinsByUserId(@Param("user_id") Integer user_id);
 
 }

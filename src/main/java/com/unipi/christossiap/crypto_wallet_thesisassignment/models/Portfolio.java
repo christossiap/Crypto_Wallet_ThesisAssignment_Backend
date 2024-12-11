@@ -2,6 +2,8 @@ package com.unipi.christossiap.crypto_wallet_thesisassignment.models;
 
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.auth.User;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,12 +19,14 @@ public class Portfolio {
     @Id
     private Integer id;
 
+    @Min(value = 5, message = "Ελάχιστη κατάθεση 5 ευρώ!")
+    @Max(value = 10000,message = "Μέγιστη κατάθεση 10000 ευρώ αν συναλλαγή")
     private Double balance;
 
     @ManyToMany(mappedBy = "portfolios")
     private List<CryptoCoin> cryptoCoins = new ArrayList<>();
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @MapsId
     @JoinColumn(name = "user_id", unique = true)
     private User user;

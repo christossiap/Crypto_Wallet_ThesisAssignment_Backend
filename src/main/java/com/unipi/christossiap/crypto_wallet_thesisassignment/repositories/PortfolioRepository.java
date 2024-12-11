@@ -1,12 +1,11 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.repositories;
 
-import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.UserPortfolioInfo;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.portfolioDTOs.UserPortfolioInfo;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.Portfolio;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
@@ -14,7 +13,7 @@ import java.util.List;
 public interface PortfolioRepository extends JpaRepository<Portfolio,Integer> {
     Portfolio findPortfolioByUserId(Integer userid);
 
-    @Query("SELECT new com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.UserPortfolioInfo(u.username, p.balance, c.name, cp.coinAmount) " +
+    @Query("SELECT new com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.portfolioDTOs.UserPortfolioInfo(u.username, p.balance, c.name, cp.coinAmount) " +
             "FROM Portfolio p " +
             "JOIN p.user u " +
             "JOIN CryptoCoinPortfolio cp ON p.id = cp.portfolio.id " +

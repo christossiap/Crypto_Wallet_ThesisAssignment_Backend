@@ -1,4 +1,4 @@
-package com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs;
+package com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.portfolioDTOs;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

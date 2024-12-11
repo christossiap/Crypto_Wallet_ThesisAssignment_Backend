@@ -9,22 +9,19 @@ import com.unipi.christossiap.crypto_wallet_thesisassignment.repositories.auth.R
 import com.unipi.christossiap.crypto_wallet_thesisassignment.repositories.auth.UserRepository;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.services.email.EmailTemplates;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.AuthException;
-import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.UserInfo;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.UserProfileInfo;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.ResourceNotFoundException;
-import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.sound.sampled.Port;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
@@ -46,17 +43,13 @@ public class AuthService implements UserDetailsService {
 
     public void saveUser(User user){userRepository.save(user);}
 
-
     public User getUser() throws ResourceNotFoundException {
         Authentication authentication =
                 SecurityContextHolder.getContext().getAuthentication();
         User user = userRepository.findUserByUsername(authentication.getName());
-        if (user == null) {throw new ResourceNotFoundException("User not found in authentication context.");}
+        if (user == null) {throw new ResourceNotFoundException("Δεν βρέθηκε ο χρήστης!");}
         return user;
     }
-
-    public List<User> getAllUsers(){return userRepository.findAll();}
-    public List<UserInfo> getAllUserDetails(){return userRepository.findUserInfo();}
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

@@ -1,17 +1,12 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.webservices;
 
 
-import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.WatchListInfo;
-import com.unipi.christossiap.crypto_wallet_thesisassignment.models.WatchList;
-import com.unipi.christossiap.crypto_wallet_thesisassignment.services.CryptoCoinService;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.watchListDTOs.WatchListInfo;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.services.WatchListService;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.ResourceNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,8 +19,10 @@ public class WatchListController {
     private WatchListService watchListService;
 
     @GetMapping("/my-watchlist")
-    public ResponseEntity<List<WatchListInfo>> handleRequest4() throws ResourceNotFoundException {
-        return ResponseEntity.ok(watchListService.getUserWatchList());
+    public ResponseEntity<WatchListInfo> handleRequest6(
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size) throws ResourceNotFoundException {
+        return ResponseEntity.ok(watchListService.getUserWatchList(page,size));
     }
 
     @PostMapping(value = "/add-coin-to-watchlist", consumes = "application/json")
@@ -40,7 +37,7 @@ public class WatchListController {
     }
     @DeleteMapping("/clear-watchlist")
     public ResponseEntity<String> clearWatchlist() throws ResourceNotFoundException {
-        watchListService.clearWatchlist();
+        watchListService.clearWatchList();
         return ResponseEntity.ok("Watchlist cleared.");
     }
 }

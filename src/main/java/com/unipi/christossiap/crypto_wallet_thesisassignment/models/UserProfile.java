@@ -14,10 +14,17 @@ public class UserProfile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private String preferredCurrency; // e.g., USD, EUR
-    private String notificationPreferences; // How users want to receive notifications
 
-    @OneToOne(fetch = FetchType.LAZY)
+    private String firstName;
+    private String lastName;
+    private String phoneNumber;
+    private String country;
+    private String city;
+    private String addressLine;
+    private String postalCode;
+    private String bio;
+
+    @OneToOne(fetch = FetchType.EAGER)
     @MapsId
     @JoinColumn(name = "user_id", unique = true)
     private User user;

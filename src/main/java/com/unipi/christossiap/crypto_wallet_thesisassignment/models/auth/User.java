@@ -82,4 +82,9 @@ public class User {
         this.setUserProfile(userProfile);
         userProfile.setUser(this);
     }
+
+    public void addNotification(Notification notification){
+        notifications.add(notification);
+        notification.setUser(this);
+    }
 }

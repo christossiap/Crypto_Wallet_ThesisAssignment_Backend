@@ -1,6 +1,6 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.repositories.auth;
 
-import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.UserInfo;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.UserProfileInfo;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.auth.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -23,10 +23,5 @@ public interface UserRepository extends JpaRepository<User,Integer> {
             "WHERE u.id=:userId")
     List<String> findUserRoles(int userId);
 
-    @Query("select new com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.UserInfo(u.username,u.password,u.email,r.name)" +
-            "from User u" +
-            "   Join UserRole ur on u.id = ur.user.id" +
-            "   join Role r on ur.role.id = r.id")
-    List<UserInfo> findUserInfo();
 }
 
