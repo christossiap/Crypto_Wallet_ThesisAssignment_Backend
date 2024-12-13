@@ -1,5 +1,6 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.services.auth;
 
+import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.UserRegisterDTO;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.Portfolio;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.UserProfile;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.WatchList;
@@ -11,6 +12,8 @@ import com.unipi.christossiap.crypto_wallet_thesisassignment.services.email.Emai
 import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.AuthException;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.UserProfileInfo;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.ResourceNotFoundException;
+import jakarta.mail.MessagingException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -22,10 +25,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class AuthService implements UserDetailsService {
@@ -40,6 +44,8 @@ public class AuthService implements UserDetailsService {
 
     @Autowired
     public EmailTemplates emailTemplates;
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
     public void saveUser(User user){userRepository.save(user);}
 
@@ -68,6 +74,7 @@ public class AuthService implements UserDetailsService {
         );
     }
 
+    @Transactional
     public void registerUser(User user) {
         userRepository.save(user); //για να πάρει ID
         Role role = roleRepository.findRoleByName("USER");
@@ -83,7 +90,7 @@ public class AuthService implements UserDetailsService {
     // Verification user με το Mail
         user.setStatus("Unverified");
         Random r = new Random();
-        user.setCode(String.valueOf(r.nextInt(1000)));
+        user.setCode(String.valueOf(r.nextInt(10000)));
         userRepository.save(user);
 //        try {
 //            emailTemplates.sendEmailCompleteRegister(user);
@@ -108,6 +115,14 @@ public class AuthService implements UserDetailsService {
         userRepository.save(user);
     }
 
+//    public void userNameReminder(String email){
+//        try {
+//            emailTemplates.sendEmailUsernameReminder(user);
+//        } catch (MessagingException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
+
     public void deleteUser() throws ResourceNotFoundException {
         User user = getUser();
         userRepository.delete(user);
@@ -118,4 +133,47 @@ public class AuthService implements UserDetailsService {
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
                 .collect(Collectors.toList());
     }
+
+    public void secretSantaEmails(){
+        List<String> names = new ArrayList<>(List.of(
+                "Χρήστος", "Θανάσης", "Γεωργία", "Σοφία",
+                "Γιάννης", "Γιώτα", "Κατερίνα", "Μήτσος"
+        ));
+
+        List<String> mails = new ArrayList<>(List.of(
+                "christossiap@hotmail.com", "gthanoulis@gmail.com", "georgia@gmail.com",
+                "sofia@gmail.com", "giannis@gmail.com", "giota@gmail.com",
+                "katerina@gmail.com", "dimitris@gmail.com"
+        ));
+
+        Map<String, String> disallowedEmails = new HashMap<>();
+        disallowedEmails.put("Χρήστος", "christossiap@hotmail.com");
+        disallowedEmails.put("Θανάσης", "gthanoulis@gmail.com");
+        disallowedEmails.put("Γεωργία", "georgia@gmail.com");
+        disallowedEmails.put("Σοφία", "sofia@gmail.com");
+        disallowedEmails.put("Γιάννης", "giannis@gmail.com");
+        disallowedEmails.put("Γιώτα", "giota@gmail.com");
+        disallowedEmails.put("Κατερίνα", "katerina@gmail.com");
+        disallowedEmails.put("Μήτσος", "dimitris@gmail.com");
+
+        Random r = new Random();
+        for (String name : names) {
+            String assignedEmail;
+            int randomIndex;
+
+            do {
+                randomIndex = r.nextInt(mails.size());
+                assignedEmail = mails.get(randomIndex);
+            } while (disallowedEmails.get(name).equals(assignedEmail));
+
+            try {
+                emailTemplates.secretSantaEmails(name, assignedEmail);
+            } catch (MessagingException e) {
+                throw new RuntimeException(e);
+            }
+
+            mails.remove(randomIndex);
+        }
+    }
+
 }

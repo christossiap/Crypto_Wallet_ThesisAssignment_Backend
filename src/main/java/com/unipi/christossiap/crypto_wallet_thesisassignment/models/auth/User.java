@@ -1,6 +1,7 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.models.auth;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.Notification;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.Portfolio;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.UserProfile;
@@ -42,15 +43,19 @@ public class User {
     private String status;
     private String code;
 
+    @JsonManagedReference
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Notification> notifications = new ArrayList<>();
 
+    @JsonManagedReference
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private WatchList watchList;
 
+    @JsonManagedReference
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Portfolio portfolio;
 
+    @JsonManagedReference
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private UserProfile userProfile;
 

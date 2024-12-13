@@ -33,7 +33,7 @@ public class CryptoCoin {
     private Double marketCap;
     private LocalDateTime lastUpdated;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.REMOVE)
     @JsonIgnore
     @JoinTable(
             name = "CryptoCoinPortfolio",

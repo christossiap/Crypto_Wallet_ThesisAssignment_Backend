@@ -7,6 +7,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Data
@@ -17,12 +19,15 @@ public class CryptoCoinPortfolio {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private Double coinAmount;
-    @ManyToOne
+
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "cryptocoin_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private CryptoCoin cryptoCoin;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "portfolio_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Portfolio portfolio;
 
 

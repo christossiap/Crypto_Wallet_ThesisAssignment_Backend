@@ -45,9 +45,9 @@ public class PortfolioService {
         }
     }
     @Transactional
-    public Portfolio getPortfolioByUserId(Integer id) throws ResourceNotFoundException {
+    public Portfolio getPortfolioByUserId() throws ResourceNotFoundException {
         User user = authService.getUser();
-        addNewPortfolioIfNecessary(user,portfolioRepository.findPortfolioByUserId(id));
+        addNewPortfolioIfNecessary(user,portfolioRepository.findPortfolioByUserId(user.getId()));
         return portfolioRepository.findPortfolioByUserId(user.getId());
     }
 
@@ -82,11 +82,10 @@ public class PortfolioService {
         if (balance == null || balance <= 0) {
             throw new RuntimeException("Λάθος ποσό! Παρακαλώ προσπαθήστε ξανά!");
         }
-        if (balance < 5 || balance > 10000) {
-            throw new RuntimeException("Η κατάθεση πρέπει να είναι από 5 έως 10000 ευρώ!");
-        }
-        User user = authService.getUser();
-        Portfolio portfolio = getPortfolioByUserId(user.getPortfolio().getId());
+//        if (balance < 5 || balance > 10000) {
+//            throw new RuntimeException("Η κατάθεση πρέπει να είναι από 5 έως 10000 ευρώ!");
+//        }
+        Portfolio portfolio = getPortfolioByUserId();
         portfolio.setBalance(portfolio.getBalance() + balance);
         savePortfolio(portfolio);
     }

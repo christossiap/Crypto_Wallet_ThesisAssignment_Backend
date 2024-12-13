@@ -1,6 +1,7 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.models.auth;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.auth.User;
 import jakarta.persistence.*;
@@ -22,8 +23,8 @@ public class Role {
     private String name;
 
 
-    @JsonIgnore
     @ManyToMany(mappedBy = "roles")
+    @JsonBackReference
     private List<User> users = new ArrayList<>();
 
 }

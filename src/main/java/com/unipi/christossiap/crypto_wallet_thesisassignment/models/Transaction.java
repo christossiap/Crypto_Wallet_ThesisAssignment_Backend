@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.sound.sampled.Port;
 import java.time.LocalDateTime;
@@ -27,7 +29,8 @@ public class Transaction {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
-    @JoinColumn(name = "portfolio_id")
+    @JoinColumn(name = "portfolio_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)  // Ensure cascading deletion at the DB level
     private Portfolio portfolio;
 
     @ManyToMany(mappedBy = "transactions")

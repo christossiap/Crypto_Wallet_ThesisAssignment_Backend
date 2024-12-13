@@ -3,6 +3,8 @@ package com.unipi.christossiap.crypto_wallet_thesisassignment.models.association
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.CryptoCoin;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.Transaction;
 import jakarta.persistence.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 public class CryptoCoinTransaction {
@@ -10,11 +12,13 @@ public class CryptoCoinTransaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "cryptocoin_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private CryptoCoin cryptoCoin;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "transaction_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Transaction transaction;
 }

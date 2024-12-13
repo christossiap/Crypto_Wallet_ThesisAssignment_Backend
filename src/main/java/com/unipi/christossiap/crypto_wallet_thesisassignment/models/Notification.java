@@ -1,6 +1,7 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.models;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.enums.NotificationType;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.auth.User;
@@ -28,9 +29,9 @@ public class Notification {
     private Boolean isRead;
     private LocalDateTime sentAt;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "user_id")
-    @JsonIgnore
+    @JsonBackReference
     private User user;
 
 }

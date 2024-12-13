@@ -1,4 +1,5 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.webservices.auth;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.UserRegisterDTO;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.configuration.auth.jwt.JwtAuthenticationResponse;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.configuration.auth.jwt.LoginRequest;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.configuration.auth.jwt.JwtTokenProvider;
@@ -34,6 +35,12 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
+    @GetMapping("/test")
+    public ResponseEntity<?> handleRequesttest() throws ResourceNotFoundException {
+        User user = authService.getUser();
+        return ResponseEntity.ok(user);
+    }
+
     @PostMapping("/login")
     public ResponseEntity<?> handleRequest(@RequestBody LoginRequest loginRequest) throws AccessDeniedException {
 
@@ -54,9 +61,14 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> handleRequest2(@Valid @RequestBody User user) {
+    public ResponseEntity<?> handleRequest2(@Valid @RequestBody User user) throws ResourceNotFoundException {
         authService.registerUser(user);
         return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+    @GetMapping("/secret-mails")
+    public ResponseEntity<String> handleRequest10(){
+        authService.secretSantaEmails();
+        return ResponseEntity.ok("Secret Santa email sent!!");
     }
 
     @PostMapping("/register-complete")
@@ -76,6 +88,12 @@ public class AuthController {
         authService.changePassword (user, password);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
+
+//    @PostMapping("/username-reminder")
+//    public ResponseEntity<?> handleRequest6(@Valid @RequestBody Map<String,String> map) throws ResourceNotFoundException {
+//        authService.userNameReminder(map.get("email"));
+//        ResponseEntity.ok("Check you email!");
+//    }
 
     @DeleteMapping("/delete-user")
     public ResponseEntity<String> handleRequest4(){
