@@ -15,10 +15,12 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.parameters.P;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.file.AccessDeniedException;
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -36,7 +38,7 @@ public class AuthController {
     private AuthService authService;
 
     @GetMapping("/test")
-    public ResponseEntity<?> handleRequesttest() throws ResourceNotFoundException {
+    public ResponseEntity<?> handleRequestTest(){
         User user = authService.getUser();
         return ResponseEntity.ok(user);
     }
@@ -61,15 +63,11 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> handleRequest2(@Valid @RequestBody User user) throws ResourceNotFoundException {
+    public ResponseEntity<?> handleRequest2(@Valid @RequestBody User user){
         authService.registerUser(user);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
-    @GetMapping("/secret-mails")
-    public ResponseEntity<String> handleRequest10(){
-        authService.secretSantaEmails();
-        return ResponseEntity.ok("Secret Santa email sent!!");
-    }
+
 
     @PostMapping("/register-complete")
     public ResponseEntity<String> handleRequest3(@Valid @RequestBody Map<String,String> map){
@@ -80,7 +78,7 @@ public class AuthController {
     }
 
     @PostMapping("/change-password")
-    public ResponseEntity<?> handleRequest5 (@Valid @RequestBody Map<String, String> map) throws ResourceNotFoundException {
+    public ResponseEntity<?> handleRequest5 (@Valid @RequestBody Map<String, String> map){
         User user = authService.getUser();
         if (user==null)
             throw new AuthException("You are not logged in!");
@@ -89,11 +87,29 @@ public class AuthController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-//    @PostMapping("/username-reminder")
-//    public ResponseEntity<?> handleRequest6(@Valid @RequestBody Map<String,String> map) throws ResourceNotFoundException {
-//        authService.userNameReminder(map.get("email"));
-//        ResponseEntity.ok("Check you email!");
-//    }
+    @PostMapping("/username-reminder")
+    public ResponseEntity<?> handleRequest6(@Valid @RequestBody Map<String,String> map){
+        User user = authService.userNameReminder(map.get("email"));
+        map = new HashMap<>();
+        map.put("username: ",user.getUsername());
+        return ResponseEntity.ok(map);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> handleRequest7(@Valid @RequestBody Map<String,String> map){
+        authService.passwordReminder(map.get("username"));
+        return ResponseEntity.ok("Στάλθηκε μήνυμα υπενθύμισης στο email!");
+    }
+
+    @PostMapping("/confirm-reset-password")
+    public ResponseEntity<?> handleRequest8(@Valid @RequestBody Map<String,String> map){
+        try {
+            authService.passwordResetConfirmation(map.get("username"),map.get("code"),map.get("password"));
+        } catch (Exception e) {
+            throw new RuntimeException("Παρακαλώ ελέγξτε τα στοιχεία που δώσατε!");
+        }
+        return ResponseEntity.ok("Ο κωδικός άλλαξε επιτυχώς!");
+    }
 
     @DeleteMapping("/delete-user")
     public ResponseEntity<String> handleRequest4(){
@@ -104,4 +120,10 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
         }
     }
+
+//    @GetMapping("/secret-mails")
+//    public ResponseEntity<String> handleRequest10(){
+//        authService.secretSantaEmails();
+//        return ResponseEntity.ok("Secret Santa email sent!!");
+//    }
 }

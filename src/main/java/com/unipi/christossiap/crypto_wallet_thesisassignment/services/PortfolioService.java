@@ -6,6 +6,7 @@ import com.unipi.christossiap.crypto_wallet_thesisassignment.models.Portfolio;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.auth.User;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.repositories.PortfolioRepository;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.services.auth.AuthService;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.AuthException;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +46,7 @@ public class PortfolioService {
         }
     }
     @Transactional
-    public Portfolio getPortfolioByUserId() throws ResourceNotFoundException {
+    public Portfolio getPortfolioByUserId(){
         User user = authService.getUser();
         addNewPortfolioIfNecessary(user,portfolioRepository.findPortfolioByUserId(user.getId()));
         return portfolioRepository.findPortfolioByUserId(user.getId());
@@ -54,6 +55,7 @@ public class PortfolioService {
 
     public UserPortfolioResponse getUserPortfolio() throws ResourceNotFoundException {
         User user = authService.getUser();
+        if (user == null){throw new AuthException("Συνδεθείτε ξανά!");}
         List<UserPortfolioInfo> list = portfolioRepository.findUserPortfolioInfo(user.getId());
         double evaluation = 0.0;
         List<Map<String, Object>> coinInfoList = new ArrayList<>();

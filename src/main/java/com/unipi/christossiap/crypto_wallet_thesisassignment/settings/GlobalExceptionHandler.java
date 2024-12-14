@@ -1,5 +1,6 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.settings;
 
+import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.AuthException;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.ResourceAlreadyExistsException;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.ResourceNotFoundException;
 import jakarta.validation.ConstraintViolationException;
@@ -112,6 +113,15 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = AccessDeniedException.class)
     public ResponseEntity<Map<String, Object>> handleException(AccessDeniedException ex, WebRequest request) {
         HttpStatus status = HttpStatus.UNAUTHORIZED;
+
+        Map<String, Object> map = httpResponse(ex.getMessage(), ex, request, status);
+
+        return new ResponseEntity<>(map, status);
+    }
+
+    @ExceptionHandler(value = AuthException.class)
+    public ResponseEntity<Map<String, Object>> handleException(AuthException ex, WebRequest request) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
 
         Map<String, Object> map = httpResponse(ex.getMessage(), ex, request, status);
 

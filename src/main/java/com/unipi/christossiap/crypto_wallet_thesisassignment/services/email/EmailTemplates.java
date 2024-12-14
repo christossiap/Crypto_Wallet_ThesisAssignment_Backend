@@ -39,19 +39,19 @@ public class EmailTemplates {
         mailService.sendHtmlEmail(user.getEmail(), "Password Reset", text);
     }
 
-    @Async
-    public void secretSantaEmails(String name, String email) throws MessagingException {
-        String text =
-                "<h2>🎄 Χο Χο Χο, " + "Ο Santa σε χρειάζεται! 🎅</h2>" +
-                        "<p>Η αποστολή σου, αν επιλέξεις να την αποδεχτείς:</p>" +
-                        "<p><strong>Ο Χριστουγεννιάτικος Buddy σου για φέτος είναι: </strong> <strong><em style='color:violet;'>" + name + "</em></strong>! 🎁</p>" +
-                        "<p>Θυμήσου, το budget είναι αυστηρά <strong>15 ευρώ</strong>. Βρες κάτι ευφάνταστο, αστείο ή συγκινητικό για να κάνεις τη μέρα του ξεχωριστή!</p>" +
-                        "<hr>" +
-                        "<p style='color:red;'><strong>🎄 Απομένουν μόνο " + 12 + " μέρες μέχρι τα Χριστούγεννα! 🎅</strong></p>" +
-                        "<p style='color:green;'>Φύλαξε το μυστικό σου καλά και άσε τη μαγεία των Χριστουγέννων να ζωντανέψει! ❄️</p>" +
-                        "<p><strong>Καλά Χριστούγεννα,</strong><br>Η Ομάδα του Άγιου Βασίλη 🎅</p>";
-
-        mailService.sendHtmlEmail(email, "🎅Secret Santa calling....🎁", text);
-    }
+//    @Async
+//    public void secretSantaEmails(String name, String email) throws MessagingException {
+//        String text =
+//                "<h2>🎄 Χο Χο Χο, " + "Ο Santa σε χρειάζεται! 🎅</h2>" +
+//                        "<p>Η αποστολή σου, αν επιλέξεις να την αποδεχτείς:</p>" +
+//                        "<p><strong>Ο Χριστουγεννιάτικος Buddy σου για φέτος είναι: </strong> <strong><em style='color:violet;'>" + name + "</em></strong>! 🎁</p>" +
+//                        "<p>Θυμήσου, το budget είναι αυστηρά <strong>15 ευρώ</strong>. Βρες κάτι ευφάνταστο, αστείο ή συγκινητικό για να κάνεις τη μέρα του ξεχωριστή!</p>" +
+//                        "<hr>" +
+//                        "<p style='color:red;'><strong>🎄 Απομένουν μόνο " + 11 + " μέρες μέχρι τα Χριστούγεννα! 🎅</strong></p>" +
+//                        "<p style='color:green;'>Φύλαξε το μυστικό σου καλά και άσε τη μαγεία των Χριστουγέννων να ζωντανέψει! ❄️</p>" +
+//                        "<p><strong>Καλά Χριστούγεννα,</strong><br>Η Ομάδα του Άγιου Βασίλη 🎅</p>";
+//
+//        mailService.sendHtmlEmail(email, "🎅Secret Santa calling....🎁", text);
+//    }
 
 }
