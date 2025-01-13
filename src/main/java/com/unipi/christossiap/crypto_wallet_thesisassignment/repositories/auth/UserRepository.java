@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import javax.swing.text.StyledEditorKit;
 import java.util.List;
 
 @Repository
@@ -15,6 +16,10 @@ public interface UserRepository extends JpaRepository<User,Integer> {
     User findUserByEmail(String email);
 
     User findUserByCode(String code);
+
+    Boolean existsByEmail(String email);
+
+    Boolean existsByUsername(String username);
 
     @Query("SELECT r.name " +
             "FROM Role r " +

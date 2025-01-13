@@ -21,12 +21,12 @@ public class NotificationController {
     private NotificationService notificationService;
 
     @GetMapping("/notifications")
-    public ResponseEntity<List<Notification>> handleRequest1() throws ResourceNotFoundException {
+    public ResponseEntity<List<Notification>> handleRequest1(){
         return ResponseEntity.ok(notificationService.getAllNotifications());
     }
 
     @GetMapping("/unread-notifications")
-    public ResponseEntity<List<Notification>> handleRequest2() throws ResourceNotFoundException {
+    public ResponseEntity<List<Notification>> handleRequest2(){
         return ResponseEntity.ok(notificationService.getUnreadNotifications());
     }
 
@@ -35,6 +35,12 @@ public class NotificationController {
 //        notificationService.createNotification(notificationInfo.getTitle(),notificationInfo.getMessage(),notificationInfo.getNotificationType());
 //        return ResponseEntity.ok("User notified");
 //    }
+
+    @PutMapping("/notifications/{id}/mark-read")
+    public ResponseEntity<?> markNotificationAsRead(@PathVariable Integer id) throws ResourceNotFoundException {
+        notificationService.markNotificationAsRead(id);
+        return ResponseEntity.ok().build();
+    }
 
     @DeleteMapping("/delete-notification")
     public ResponseEntity<?> handleRequest4(@RequestParam Integer id) throws ResourceNotFoundException {

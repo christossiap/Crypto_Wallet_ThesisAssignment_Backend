@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.ApiCryptoCoinCapData.CryptoApiResponse;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.ApiCryptoCoinCapData.CryptoData;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.CryptoCoin;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.models.CryptoCoinHistory;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.repositories.CryptoCoinRepository;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.services.CryptoCoinHistoryService;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.services.CryptoCoinService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,10 +18,11 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.List;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @Service
 public class CryptoApiService {
@@ -29,6 +32,8 @@ public class CryptoApiService {
     private CryptoCoinService cryptoCoinService;
     @Autowired
     private CryptoCoinRepository cryptoCoinRepository;
+    @Autowired
+    private CryptoCoinHistoryService cryptoCoinHistoryService;
 
     private static final Logger logger = LoggerFactory.getLogger(CryptoCoinService.class);
 
@@ -58,25 +63,70 @@ public class CryptoApiService {
             // Map and Save
             List<CryptoData> cryptoDataList = apiResponse.getData();
 
+
             for (CryptoData cryptoData : cryptoDataList) {
                 CryptoCoin oldCoin = cryptoCoinRepository.findCryptoCoinByName(cryptoData.getName());
-                if (oldCoin != null){
+                if (oldCoin != null) {
                     oldCoin.setTotalSupply(cryptoData.getTotalSupply());
-                    oldCoin.setPrice(cryptoData.getQuote().getUsd().getPrice());
-                    oldCoin.setPercentChange24h(cryptoData.getQuote().getUsd().getPercentChange24h());
+
+                    // Use BigDecimal for safe rounding
+                    BigDecimal price = BigDecimal.valueOf(cryptoData.getQuote().getUsd().getPrice())
+                            .setScale(2, RoundingMode.HALF_UP);
+                    oldCoin.setPrice(price.doubleValue());
+
+                    BigDecimal percentChange24h = BigDecimal.valueOf(cryptoData.getQuote().getUsd().getPercentChange24h())
+                            .setScale(2, RoundingMode.HALF_UP);
+                    oldCoin.setPercentChange24h(percentChange24h.doubleValue());
+
                     oldCoin.setMarketCap(cryptoData.getQuote().getUsd().getMarketCap());
-                    oldCoin.setLastUpdated(LocalDateTime.parse(cryptoData.getQuote().getUsd().getLastUpdated(), DateTimeFormatter.ISO_DATE_TIME));
+
+                    // Use Instant to parse UTC with Z or OffsetDateTime for offsets
+                    String lastUpdatedString = cryptoData.getQuote().getUsd().getLastUpdated();
+                    Instant instant = Instant.parse(lastUpdatedString); // Handles Z or offsets
+                    oldCoin.setLastUpdated(instant.atOffset(OffsetDateTime.now().getOffset()).toLocalDateTime());
+
                     cryptoCoinService.saveCryptoCoin(oldCoin);
-                }else {
+
+                    CryptoCoinHistory coinHistory = new CryptoCoinHistory();
+                    coinHistory.setTotalSupply(cryptoData.getTotalSupply());
+                    coinHistory.setMarketCap(cryptoData.getQuote().getUsd().getMarketCap());
+                    coinHistory.setPercentChange24h(percentChange24h.doubleValue());
+                    coinHistory.setPrice(price.doubleValue());
+                    coinHistory.setLastUpdated(instant.atOffset(OffsetDateTime.now().getOffset()).toLocalDateTime());
+                    coinHistory.setCryptoCoin(oldCoin);
+                    cryptoCoinHistoryService.saveCryptoCoinHistory(coinHistory);
+
+                } else {
                     CryptoCoin coin = new CryptoCoin();
                     coin.setName(cryptoData.getName());
                     coin.setSymbol(cryptoData.getSymbol());
                     coin.setTotalSupply(cryptoData.getTotalSupply());
-                    coin.setPrice(cryptoData.getQuote().getUsd().getPrice());
-                    coin.setPercentChange24h(cryptoData.getQuote().getUsd().getPercentChange24h());
+
+                    BigDecimal price = BigDecimal.valueOf(cryptoData.getQuote().getUsd().getPrice())
+                            .setScale(2, RoundingMode.HALF_UP);
+                    coin.setPrice(price.doubleValue());
+
+                    BigDecimal percentChange24h = BigDecimal.valueOf(cryptoData.getQuote().getUsd().getPercentChange24h())
+                            .setScale(2, RoundingMode.HALF_UP);
+                    coin.setPercentChange24h(percentChange24h.doubleValue());
+
                     coin.setMarketCap(cryptoData.getQuote().getUsd().getMarketCap());
-                    coin.setLastUpdated(LocalDateTime.parse(cryptoData.getQuote().getUsd().getLastUpdated(), DateTimeFormatter.ISO_DATE_TIME));
+
+                    // Use Instant to parse UTC with Z or OffsetDateTime for offsets
+                    String lastUpdatedString = cryptoData.getQuote().getUsd().getLastUpdated();
+                    Instant instant = Instant.parse(lastUpdatedString); // Handles Z or offsets
+                    coin.setLastUpdated(instant.atOffset(OffsetDateTime.now().getOffset()).toLocalDateTime());
+
                     cryptoCoinService.saveCryptoCoin(coin);
+
+                    CryptoCoinHistory coinHistory = new CryptoCoinHistory();
+                    coinHistory.setTotalSupply(cryptoData.getTotalSupply());
+                    coinHistory.setMarketCap(cryptoData.getQuote().getUsd().getMarketCap());
+                    coinHistory.setPercentChange24h(percentChange24h.doubleValue());
+                    coinHistory.setPrice(price.doubleValue());
+                    coinHistory.setLastUpdated(instant.atOffset(OffsetDateTime.now().getOffset()).toLocalDateTime());
+                    coinHistory.setCryptoCoin(coin);
+                    cryptoCoinHistoryService.saveCryptoCoinHistory(coinHistory);
                 }
             }
         } catch (Exception e) {

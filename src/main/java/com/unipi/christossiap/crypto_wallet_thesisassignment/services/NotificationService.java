@@ -21,12 +21,12 @@ public class NotificationService {
     @Autowired
     private AuthService authService;
 
-    public List<Notification> getAllNotifications() throws ResourceNotFoundException {
+    public List<Notification> getAllNotifications(){
         User user = authService.getUser();
         return notificationRepository.findByUserId(user.getId());
     }
 
-    public List<Notification> getUnreadNotifications() throws ResourceNotFoundException {
+    public List<Notification> getUnreadNotifications(){
         User user = authService.getUser();
         return notificationRepository.findByUserIdAndIsRead(user.getId(), false);
     }

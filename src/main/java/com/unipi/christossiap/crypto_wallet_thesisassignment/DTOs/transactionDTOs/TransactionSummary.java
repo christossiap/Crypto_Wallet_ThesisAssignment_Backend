@@ -16,7 +16,4 @@ public class TransactionSummary {
     private Double amountTransacted;
     private Double priceAtTransaction;
     private Double totalTransactionValue;
-
-    public TransactionSummary(double totalBuy, double totalSell, double v) {
-    }
 }

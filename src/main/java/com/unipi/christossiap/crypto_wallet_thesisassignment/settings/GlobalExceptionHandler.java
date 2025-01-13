@@ -1,8 +1,6 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.settings;
 
-import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.AuthException;
-import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.ResourceAlreadyExistsException;
-import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.ResourceNotFoundException;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.*;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.web.servlet.error.DefaultErrorAttributes;
@@ -121,6 +119,15 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = AuthException.class)
     public ResponseEntity<Map<String, Object>> handleException(AuthException ex, WebRequest request) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
+        Map<String, Object> map = httpResponse(ex.getMessage(), ex, request, status);
+
+        return new ResponseEntity<>(map, status);
+    }
+
+    @ExceptionHandler(value = UserValidationExceptions.class)
+    public ResponseEntity<Map<String, Object>> handleException(UserValidationExceptions ex, WebRequest request) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
 
         Map<String, Object> map = httpResponse(ex.getMessage(), ex, request, status);

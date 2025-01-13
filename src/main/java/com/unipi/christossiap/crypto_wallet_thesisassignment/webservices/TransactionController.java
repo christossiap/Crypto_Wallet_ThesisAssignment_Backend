@@ -1,10 +1,15 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.webservices;
 
 import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.transactionDTOs.TransactionRequest;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.transactionDTOs.TransactionSummary;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.Transaction;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.services.TransactionService;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.InsufficientBalanceException;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.InsufficientCoinsException;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +23,7 @@ public class TransactionController {
     @Autowired
     private TransactionService transactionService;
     @GetMapping("/user-transactions")
-    public List<Transaction> handleRequest1(
+    public List<TransactionSummary> handleRequest1(
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size,
             @RequestParam(name = "sortBy", required = false) String sortBy,
@@ -44,15 +49,14 @@ public class TransactionController {
     }
 
     @PostMapping("/process-transaction")
-    public String handleRequest4(@RequestBody TransactionRequest transactionRequest) {
+    public ResponseEntity<?> processTransaction(@RequestBody TransactionRequest request) {
         try {
-            transactionService.processTransaction(
-                    transactionRequest.getCryptoCoinName(),
-                    transactionRequest.getAmount(),
-                    transactionRequest.getTransactionType());
-            return "Transaction processed successfully!";
+            transactionService.processTransaction(request.getCryptoCoinName(), request.getAmount(), request.getTransactionType());
+            return ResponseEntity.ok("Transaction successful");
+        } catch (InsufficientBalanceException | InsufficientCoinsException | IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            return "Error processing transaction: " + e.getMessage();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing transaction: " + e.getMessage());
         }
     }
 

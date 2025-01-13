@@ -5,13 +5,15 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
 
 
 
-@SpringBootApplication
+
 @EnableScheduling
+@SpringBootApplication(scanBasePackages = "com.unipi.christossiap.crypto_wallet_thesisassignment")
 public class CryptoWalletThesisAssignmentApplication {
 
     public static void main(String[] args) {

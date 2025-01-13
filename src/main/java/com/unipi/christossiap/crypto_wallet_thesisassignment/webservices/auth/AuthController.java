@@ -1,4 +1,5 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.webservices.auth;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.UserDTO;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.UserRegisterDTO;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.configuration.auth.jwt.JwtAuthenticationResponse;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.configuration.auth.jwt.LoginRequest;
@@ -37,9 +38,13 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
-    @GetMapping("/test")
-    public ResponseEntity<?> handleRequestTest(){
-        User user = authService.getUser();
+    @PostMapping("/test")
+    public ResponseEntity<?> handleRequestTest(@Valid @RequestBody UserDTO userDTO){
+        User user = new User();
+        user.setUsername(userDTO.getUsername());
+        user.setPassword("123");
+        user.setEmail("test@gmail.com");
+        authService.registerUser(user);
         return ResponseEntity.ok(user);
     }
 
@@ -63,9 +68,9 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> handleRequest2(@Valid @RequestBody User user){
+    public ResponseEntity<?> handleRequest2(@RequestBody User user){
         authService.registerUser(user);
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        return ResponseEntity.ok("success");
     }
 
 
@@ -74,7 +79,7 @@ public class AuthController {
         if (authService.registerComplete(map.get("Code"))){
             return ResponseEntity.ok("success");
         }else
-            return ResponseEntity.ok("registration failed...");
+            return ResponseEntity.ok("registration failed...Please check the details you provided!");
     }
 
     @PostMapping("/change-password")
@@ -98,7 +103,7 @@ public class AuthController {
     @PostMapping("/reset-password")
     public ResponseEntity<String> handleRequest7(@Valid @RequestBody Map<String,String> map){
         authService.passwordReminder(map.get("username"));
-        return ResponseEntity.ok("Στάλθηκε μήνυμα υπενθύμισης στο email!");
+        return ResponseEntity.ok("A reminder message has been sent to your email!");
     }
 
     @PostMapping("/confirm-reset-password")
@@ -106,9 +111,9 @@ public class AuthController {
         try {
             authService.passwordResetConfirmation(map.get("username"),map.get("code"),map.get("password"));
         } catch (Exception e) {
-            throw new RuntimeException("Παρακαλώ ελέγξτε τα στοιχεία που δώσατε!");
+            throw new RuntimeException("Please check the details you provided!");
         }
-        return ResponseEntity.ok("Ο κωδικός άλλαξε επιτυχώς!");
+        return ResponseEntity.ok("The password was changed successfully!");
     }
 
     @DeleteMapping("/delete-user")
@@ -120,10 +125,4 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
         }
     }
-
-//    @GetMapping("/secret-mails")
-//    public ResponseEntity<String> handleRequest10(){
-//        authService.secretSantaEmails();
-//        return ResponseEntity.ok("Secret Santa email sent!!");
-//    }
 }

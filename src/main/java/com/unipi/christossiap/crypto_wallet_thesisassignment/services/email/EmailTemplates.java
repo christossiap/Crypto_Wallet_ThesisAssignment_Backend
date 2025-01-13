@@ -16,42 +16,27 @@ public class EmailTemplates {
     @Async
     public void sendEmailCompleteRegister(User user) throws MessagingException {
         String text =
-                "O κωδικός είναι: " + user.getCode();
+                "The code is: " + user.getCode();
 
-        mailService.sendHtmlEmail(user.getEmail(), "Eπαλήθευση Εγγραφής", text);
+        mailService.sendHtmlEmail(user.getEmail(), "Registration Verification", text);
     }
 
     @Async
     public void sendEmailUsernameReminder(User user) throws MessagingException {
         String text =
-                "Το username είναι: " + user.getUsername();
+                "The username is: " + user.getUsername();
 
-        mailService.sendHtmlEmail(user.getEmail(), "Υπενθύμιση Username", text);
+        mailService.sendHtmlEmail(user.getEmail(), "Username Reminder", text);
     }
 
     @Async
     public void sendEmailResetPassword(User user) throws MessagingException {
         String text =
-                "O κωδικός για αλλαγή του password είναι: " + user.getCode();
+                "The code for password reset is: " + user.getCode();
 
-        text += " (αν δεν κάνατε εσείς το αίτημα αγνοήστε αυτό το μήνυμα)";
+        text += " (If you did not request this, please ignore this message)";
 
         mailService.sendHtmlEmail(user.getEmail(), "Password Reset", text);
     }
-
-//    @Async
-//    public void secretSantaEmails(String name, String email) throws MessagingException {
-//        String text =
-//                "<h2>🎄 Χο Χο Χο, " + "Ο Santa σε χρειάζεται! 🎅</h2>" +
-//                        "<p>Η αποστολή σου, αν επιλέξεις να την αποδεχτείς:</p>" +
-//                        "<p><strong>Ο Χριστουγεννιάτικος Buddy σου για φέτος είναι: </strong> <strong><em style='color:violet;'>" + name + "</em></strong>! 🎁</p>" +
-//                        "<p>Θυμήσου, το budget είναι αυστηρά <strong>15 ευρώ</strong>. Βρες κάτι ευφάνταστο, αστείο ή συγκινητικό για να κάνεις τη μέρα του ξεχωριστή!</p>" +
-//                        "<hr>" +
-//                        "<p style='color:red;'><strong>🎄 Απομένουν μόνο " + 11 + " μέρες μέχρι τα Χριστούγεννα! 🎅</strong></p>" +
-//                        "<p style='color:green;'>Φύλαξε το μυστικό σου καλά και άσε τη μαγεία των Χριστουγέννων να ζωντανέψει! ❄️</p>" +
-//                        "<p><strong>Καλά Χριστούγεννα,</strong><br>Η Ομάδα του Άγιου Βασίλη 🎅</p>";
-//
-//        mailService.sendHtmlEmail(email, "🎅Secret Santa calling....🎁", text);
-//    }
 
 }

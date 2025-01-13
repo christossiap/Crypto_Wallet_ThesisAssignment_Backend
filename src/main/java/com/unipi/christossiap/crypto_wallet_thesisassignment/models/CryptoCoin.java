@@ -2,6 +2,7 @@ package com.unipi.christossiap.crypto_wallet_thesisassignment.models;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jdk.dynalink.linker.LinkerServices;
@@ -33,6 +34,10 @@ public class CryptoCoin {
     private Double marketCap;
     private LocalDateTime lastUpdated;
 
+    @JsonManagedReference
+    @OneToMany(mappedBy = "cryptoCoin", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<CryptoCoinHistory> cryptoCoinHistories = new ArrayList<>();
+
     @ManyToMany(cascade = CascadeType.REMOVE)
     @JsonIgnore
     @JoinTable(
@@ -61,4 +66,13 @@ public class CryptoCoin {
             inverseJoinColumns = @JoinColumn(name = "watchlist_id")
     )
     private List<WatchList> watchLists = new ArrayList<>();
+
+    public void addCryptoCoinHistory(CryptoCoinHistory cryptoCoinHistory){
+        cryptoCoinHistories.add(cryptoCoinHistory);
+        cryptoCoinHistory.setCryptoCoin(this);
+    }
+    public void removeCryptoCoinHistory(CryptoCoinHistory history) {
+        history.setCryptoCoin(null);
+        this.cryptoCoinHistories.remove(history);
+    }
 }
