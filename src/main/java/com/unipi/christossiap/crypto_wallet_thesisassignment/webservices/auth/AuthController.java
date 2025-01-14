@@ -1,6 +1,4 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.webservices.auth;
-import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.UserDTO;
-import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.UserRegisterDTO;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.configuration.auth.jwt.JwtAuthenticationResponse;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.configuration.auth.jwt.LoginRequest;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.configuration.auth.jwt.JwtTokenProvider;
@@ -16,7 +14,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.parameters.P;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,16 +35,6 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
-    @PostMapping("/test")
-    public ResponseEntity<?> handleRequestTest(@Valid @RequestBody UserDTO userDTO){
-        User user = new User();
-        user.setUsername(userDTO.getUsername());
-        user.setPassword("123");
-        user.setEmail("test@gmail.com");
-        authService.registerUser(user);
-        return ResponseEntity.ok(user);
-    }
-
     @PostMapping("/login")
     public ResponseEntity<?> handleRequest(@RequestBody LoginRequest loginRequest) throws AccessDeniedException {
 
@@ -68,7 +55,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> handleRequest2(@RequestBody User user){
+    public ResponseEntity<?> handleRequest2(@Valid @RequestBody User user){
         authService.registerUser(user);
         return ResponseEntity.ok("success");
     }

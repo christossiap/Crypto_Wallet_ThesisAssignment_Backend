@@ -48,17 +48,17 @@ public class AuthService implements UserDetailsService {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
-    public void validateUser(String username,String email) {
-        if (username == null || username.trim().isEmpty()) {
-            throw new IllegalArgumentException("Username cannot be null or empty");
-        }
-        if (userRepository.existsByUsername(username)) {
-            throw new UserValidationExceptions("Username already exists");
-        }
-        if (userRepository.existsByEmail(email)) {
-            throw new UserValidationExceptions("Email already exists");
-        }
-    }
+//    public void validateUser(String username,String email) {
+//        if (username == null || username.trim().isEmpty()) {
+//            throw new IllegalArgumentException("Username cannot be null or empty");
+//        }
+//        if (userRepository.existsByUsername(username)) {
+//            throw new UserValidationExceptions("Username already exists");
+//        }
+//        if (userRepository.existsByEmail(email)) {
+//            throw new UserValidationExceptions("Email already exists");
+//        }
+//    }
 
     public void saveUser(User user){userRepository.save(user);}
 
@@ -114,7 +114,7 @@ public class AuthService implements UserDetailsService {
 
     @Transactional
     public void registerUser(User user) {
-        validateUser(user.getUsername(),user.getEmail());
+        //validateUser(user.getUsername(),user.getEmail());
         Role role = roleRepository.findRoleByName("USER");
         user.addRole(role);
 

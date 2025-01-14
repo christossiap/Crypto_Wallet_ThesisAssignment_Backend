@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TransactionRequest {
-    private String transactionType; // BUY or SELL
+    private String transactionType;
     private String cryptoCoinName; // Name of the coin
     private Double amount; // Amount of coin to buy/sell
 }

@@ -135,6 +135,15 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(map, status);
     }
 
+    @ExceptionHandler(value = BalanceDepositionException.class)
+    public ResponseEntity<Map<String, Object>> handleException(BalanceDepositionException ex, WebRequest request) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
+        Map<String, Object> map = httpResponse(ex.getMessage(), ex, request, status);
+
+        return new ResponseEntity<>(map, status);
+    }
+
     @ExceptionHandler(value = Exception.class)
     public ResponseEntity<Map<String, Object>> handleException(Exception ex, WebRequest request) {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;

@@ -1,5 +1,6 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.services;
 
+import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.EditUserInfo;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.UserProfileInfo;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.UserProfile;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.auth.User;
@@ -20,7 +21,7 @@ public class UserProfileService {
     @Autowired
     private AuthService authService;
 
-    public UserProfileInfo getAllUserInfo() throws ResourceNotFoundException {
+    public UserProfileInfo getAllUserInfo(){
         User user = authService.getUser();
         UserProfile userProfile = userProfileRepository.findUserProfileByUserId(user.getId());
         return new UserProfileInfo(
@@ -38,39 +39,36 @@ public class UserProfileService {
     }
 
     @Transactional
-    public void editUserProfile(Map<String,String> userInfos) throws ResourceNotFoundException {
+    public void editUserProfile(EditUserInfo userInfo){
         User user = authService.getUser();
         UserProfile userProfile = userProfileRepository.findUserProfileByUserId(user.getId());
 
-        userInfos.forEach((key, value) -> {
-            switch (key) {
-                case "firstName":
-                    userProfile.setFirstName(value);
-                    break;
-                case "lastName":
-                    userProfile.setLastName(value);
-                    break;
-                case "phoneNumber":
-                    userProfile.setPhoneNumber(value);
-                    break;
-                case "country":
-                    userProfile.setCountry(value);
-                    break;
-                case "city":
-                    userProfile.setCity(value);
-                    break;
-                case "addressLine":
-                    userProfile.setAddressLine(value);
-                    break;
-                case "postalCode":
-                    userProfile.setPostalCode(value);
-                    break;
-                case "bio":
-                    userProfile.setBio(value);
-                    break;
-                default:
-                    break;
-            }
-        });
+        if (userInfo.getFirstName() != null) {
+            userProfile.setFirstName(userInfo.getFirstName());
+        }
+        if (userInfo.getLastName() != null) {
+            userProfile.setLastName(userInfo.getLastName());
+        }
+        if (userInfo.getPhoneNumber() != null) {
+            userProfile.setPhoneNumber(userInfo.getPhoneNumber());
+        }
+        if (userInfo.getCountry() != null) {
+            userProfile.setCountry(userInfo.getCountry());
+        }
+        if (userInfo.getCity() != null) {
+            userProfile.setCity(userInfo.getCity());
+        }
+        if (userInfo.getAddressLine() != null) {
+            userProfile.setAddressLine(userInfo.getAddressLine());
+        }
+        if (userInfo.getPostalCode() != null) {
+            userProfile.setPostalCode(userInfo.getPostalCode());
+        }
+        if (userInfo.getBio() != null) {
+            userProfile.setBio(userInfo.getBio());
+        }
+
+        // Save updated profile
+        userProfileRepository.save(userProfile);
     }
 }

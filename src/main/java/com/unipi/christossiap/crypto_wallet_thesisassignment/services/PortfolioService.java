@@ -7,6 +7,7 @@ import com.unipi.christossiap.crypto_wallet_thesisassignment.models.auth.User;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.repositories.PortfolioRepository;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.services.auth.AuthService;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.AuthException;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.BalanceDepositionException;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +56,7 @@ public class PortfolioService {
 
     public UserPortfolioResponse getUserPortfolio() throws ResourceNotFoundException {
         User user = authService.getUser();
-        if (user == null){throw new AuthException("Συνδεθείτε ξανά!");}
+        if (user == null){throw new AuthException("Please login!");}
         List<UserPortfolioInfo> list = portfolioRepository.findUserPortfolioInfo(user.getId());
         double evaluation = 0.0;
         List<Map<String, Object>> coinInfoList = new ArrayList<>();
@@ -80,13 +81,10 @@ public class PortfolioService {
 
 
     @Transactional
-    public void addBalance(Double balance) throws ResourceNotFoundException {
-        if (balance == null || balance <= 0) {
-            throw new RuntimeException("Λάθος ποσό! Παρακαλώ προσπαθήστε ξανά!");
+    public void addBalance(Double balance){
+        if (balance == null || balance >= 1000.0 || balance <= 5.0) {
+            throw new BalanceDepositionException("The amount of deposition must be minimum of 5€ and maximum of 1000€");
         }
-//        if (balance < 5 || balance > 10000) {
-//            throw new RuntimeException("Η κατάθεση πρέπει να είναι από 5 έως 10000 ευρώ!");
-//        }
         Portfolio portfolio = getPortfolioByUserId();
         portfolio.setBalance(portfolio.getBalance() + balance);
         savePortfolio(portfolio);

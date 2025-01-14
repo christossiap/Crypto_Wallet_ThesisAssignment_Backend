@@ -33,7 +33,7 @@ public class PortfolioController {
 
 
     @PostMapping("/add-balance")
-    public ResponseEntity<String> handleRequest3(@RequestBody Map<String,Double> balance) throws ResourceNotFoundException {
+    public ResponseEntity<String> handleRequest3(@RequestBody Map<String,Double> balance){
         portfolioService.addBalance(balance.get("balance"));
         return ResponseEntity.ok("Tο ποσό προστέθηκε επιτυχώς...!");
     }

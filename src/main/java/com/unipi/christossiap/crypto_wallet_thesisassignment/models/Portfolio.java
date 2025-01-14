@@ -22,8 +22,6 @@ public class Portfolio {
     @Id
     private Integer id;
 
-//    @Min(value = 5, message = "Ελάχιστη κατάθεση 5 ευρώ!")
-//    @Max(value = 10000,message = "Μέγιστη κατάθεση 10000 ευρώ αν συναλλαγή")
     private Double balance;
 
     @ManyToMany(mappedBy = "portfolios",cascade = CascadeType.REMOVE)

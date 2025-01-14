@@ -29,7 +29,7 @@ public class User {
     private Integer id;
 
     @Pattern(regexp = "^[0-9a-zA-Z]{5,20}$|^$", message = "Invalid username (5-20 Latin characters and/or numbers)")
-    //@UsernameNotExistsConstraint
+    @UsernameNotExistsConstraint
     private String username;
 
     //@Pattern(regexp = "^[0-9a-zA-Z]{5,20}$|^$", message = "Invalid password (5-20 Latin characters and/or numbers)")
@@ -37,7 +37,7 @@ public class User {
 
     @NotNull(message="The email must be provided")
     @Email
-//    @EmailNotExistsConstraint
+    @EmailNotExistsConstraint
     private String email;
     private String status;
     private String code;
