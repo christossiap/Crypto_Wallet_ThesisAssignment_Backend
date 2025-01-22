@@ -31,7 +31,7 @@ public class CryptoCoinService {
     public CryptoCoin getCryptoCoinByName(String name) throws ResourceNotFoundException {
         CryptoCoin coin = cryptoCoinRepository.findCryptoCoinByName(name);
         if (coin == null){
-            throw new ResourceNotFoundException("Δεν βρέθηκε το συγκεκριμένο κρυπτονόμισμα!");
+            throw new ResourceNotFoundException("Crypto not found or an error occurred!");
         }
         return coin;
     }
@@ -40,7 +40,7 @@ public class CryptoCoinService {
     public CryptoCoin getCryptoCoinById(Integer id) throws ResourceNotFoundException {
         CryptoCoin coin = cryptoCoinRepository.findCryptoCoinById(id);
         if (coin == null){
-            throw new ResourceNotFoundException("Δεν βρέθηκε το συγκεκριμένο κρυπτονόμισμα!");
+            throw new ResourceNotFoundException("Crypto not found or an error occurred!");
         }
         return coin;
     }

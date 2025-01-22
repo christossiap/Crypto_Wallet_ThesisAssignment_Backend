@@ -35,6 +35,7 @@ public class CryptoCoin {
     private LocalDateTime lastUpdated;
 
     @JsonManagedReference
+    @JsonIgnore
     @OneToMany(mappedBy = "cryptoCoin", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<CryptoCoinHistory> cryptoCoinHistories = new ArrayList<>();
 
@@ -66,13 +67,4 @@ public class CryptoCoin {
             inverseJoinColumns = @JoinColumn(name = "watchlist_id")
     )
     private List<WatchList> watchLists = new ArrayList<>();
-
-    public void addCryptoCoinHistory(CryptoCoinHistory cryptoCoinHistory){
-        cryptoCoinHistories.add(cryptoCoinHistory);
-        cryptoCoinHistory.setCryptoCoin(this);
-    }
-    public void removeCryptoCoinHistory(CryptoCoinHistory history) {
-        history.setCryptoCoin(null);
-        this.cryptoCoinHistories.remove(history);
-    }
 }
