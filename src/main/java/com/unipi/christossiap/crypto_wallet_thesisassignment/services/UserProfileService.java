@@ -67,8 +67,6 @@ public class UserProfileService {
         if (userInfo.getBio() != null) {
             userProfile.setBio(userInfo.getBio());
         }
-
-        // Save updated profile
         userProfileRepository.save(userProfile);
     }
 }

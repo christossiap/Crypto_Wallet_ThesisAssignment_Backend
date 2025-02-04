@@ -48,18 +48,6 @@ public class AuthService implements UserDetailsService {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
-//    public void validateUser(String username,String email) {
-//        if (username == null || username.trim().isEmpty()) {
-//            throw new IllegalArgumentException("Username cannot be null or empty");
-//        }
-//        if (userRepository.existsByUsername(username)) {
-//            throw new UserValidationExceptions("Username already exists");
-//        }
-//        if (userRepository.existsByEmail(email)) {
-//            throw new UserValidationExceptions("Email already exists");
-//        }
-//    }
-
     public void saveUser(User user){userRepository.save(user);}
 
     public User getUser(){
@@ -114,7 +102,6 @@ public class AuthService implements UserDetailsService {
 
     @Transactional
     public void registerUser(User user) {
-        //validateUser(user.getUsername(),user.getEmail());
         Role role = roleRepository.findRoleByName("USER");
         user.addRole(role);
 
@@ -143,7 +130,6 @@ public class AuthService implements UserDetailsService {
 //         }
     }
 
-
     public Boolean registerComplete(String code){
         User user = userRepository.findUserByCode(code);
         if (user==null)
@@ -154,12 +140,20 @@ public class AuthService implements UserDetailsService {
         return true;
     }
 
-    public void changePassword(User user, String password){
-        String encodedPassword = passwordEncoder.encode(password);
-        user.setPassword(encodedPassword);
-        userRepository.save(user);
+    @Transactional
+    public void changePassword(User user, String password) {
+        try {
+            String encodedPassword = passwordEncoder.encode(password);
+            user.setPassword(encodedPassword);
+            userRepository.save(user);
+        } catch (Exception e) {
+            // Log the exception here
+            e.printStackTrace();
+            throw new RuntimeException("Error occurred while changing password", e);
+        }
     }
 
+    @Transactional
     public User userNameReminder(String email){
         User user = userRepository.findUserByEmail(email);
         if (user == null){throw new AuthException("User not found with this registered email!");}
@@ -174,16 +168,21 @@ public class AuthService implements UserDetailsService {
         return user;
     }
 
+    @Transactional
     public void passwordReminder(String username){
         User user = userRepository.findUserByUsername(username);
         if (user == null){throw new AuthException("User not found with this registered username!");}
         try {
+            Random random = new Random();
+            user.setCode(String.valueOf(random.nextInt(10000)));
+            userRepository.save(user);
             emailTemplates.sendEmailResetPassword(user);
         } catch (MessagingException e) {
             throw new RuntimeException(e);
         }
     }
 
+    @Transactional
     public void passwordResetConfirmation(String username, String code, String newPassword){
         User user = userRepository.findUserByUsername(username);
         if (user.getCode().equals(code)){
@@ -193,6 +192,27 @@ public class AuthService implements UserDetailsService {
         }else {throw new RuntimeException("Invalid confirmation code..");}
     }
 
+    @Transactional
+    public void usernameChange(User user, String username){
+        if (userRepository.existsByUsername(username)) {
+            throw new RuntimeException("Username already exists");
+        }else {
+            user.setUsername(username);
+            userRepository.save(user);
+        }
+    }
+
+    @Transactional
+    public void emailChange(User user, String email){
+        if (userRepository.existsByEmail(email)) {
+            throw new RuntimeException("Email already exists");
+        }else {
+            user.setEmail(email);
+            userRepository.save(user);
+        }
+    }
+
+    @Transactional
     public void deleteUser() throws ResourceNotFoundException {
         User user = getUser();
         userRepository.delete(user);

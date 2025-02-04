@@ -79,6 +79,26 @@ public class AuthController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
+    @PostMapping("/change-username")
+    public ResponseEntity<?> handleRequest9 (@Valid @RequestBody Map<String, String> map){
+        User user = authService.getUser();
+        if (user==null)
+            throw new AuthException("You are not logged in!");
+        String username = map.get("username");
+        authService.usernameChange (user, username);
+        return ResponseEntity.ok("Username successfully changed!");
+    }
+
+    @PostMapping("/change-email")
+    public ResponseEntity<?> handleRequest10 (@Valid @RequestBody Map<String, String> map){
+        User user = authService.getUser();
+        if (user==null)
+            throw new AuthException("You are not logged in!");
+        String email = map.get("email");
+        authService.emailChange(user,email);
+        return ResponseEntity.ok("Email successfully changed!");
+    }
+
     @PostMapping("/username-reminder")
     public ResponseEntity<?> handleRequest6(@Valid @RequestBody Map<String,String> map){
         User user = authService.userNameReminder(map.get("email"));

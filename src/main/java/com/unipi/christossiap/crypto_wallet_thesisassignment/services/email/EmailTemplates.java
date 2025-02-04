@@ -1,10 +1,14 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.services.email;
 
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.auth.User;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.repositories.auth.UserRepository;
 import jakarta.mail.MessagingException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+
+import java.util.Random;
 
 @Component
 public class EmailTemplates {
@@ -31,6 +35,7 @@ public class EmailTemplates {
 
     @Async
     public void sendEmailResetPassword(User user) throws MessagingException {
+
         String text =
                 "The code for password reset is: " + user.getCode();
 

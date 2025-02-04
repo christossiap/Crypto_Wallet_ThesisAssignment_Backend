@@ -1,6 +1,5 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.repositories.auth;
 
-import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.UserProfileInfo;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.auth.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

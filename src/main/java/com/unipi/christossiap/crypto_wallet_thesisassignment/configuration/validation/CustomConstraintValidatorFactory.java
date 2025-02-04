@@ -1,21 +1,19 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.configuration.validation;
+
 import jakarta.validation.ConstraintValidator;
-import jakarta.validation.ConstraintValidatorFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.beanvalidation.SpringConstraintValidatorFactory;
 
-@Component
+@Component // ✅ This ensures Spring recognizes it as a bean
 public class CustomConstraintValidatorFactory extends SpringConstraintValidatorFactory {
 
-    @Autowired
-    private ApplicationContext applicationContext;
+    private final ApplicationContext applicationContext;
 
-    public CustomConstraintValidatorFactory(AutowireCapableBeanFactory beanFactory) {
+    public CustomConstraintValidatorFactory(AutowireCapableBeanFactory beanFactory, ApplicationContext applicationContext) {
         super(beanFactory);
+        this.applicationContext = applicationContext;
     }
 
     @Override
@@ -23,4 +21,3 @@ public class CustomConstraintValidatorFactory extends SpringConstraintValidatorF
         return applicationContext.getAutowireCapableBeanFactory().createBean(key);
     }
 }
-

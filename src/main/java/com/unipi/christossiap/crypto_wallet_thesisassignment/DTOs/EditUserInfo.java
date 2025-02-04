@@ -35,7 +35,5 @@ public class EditUserInfo {
 
         @Size(max = 250, message = "Bio must be at most 250 characters")
         private String bio;
-
-        // Getters and Setters
 }
 

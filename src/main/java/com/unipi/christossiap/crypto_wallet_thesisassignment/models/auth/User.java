@@ -32,7 +32,9 @@ public class User {
     @UsernameNotExistsConstraint
     private String username;
 
-    //@Pattern(regexp = "^[0-9a-zA-Z]{5,20}$|^$", message = "Invalid password (5-20 Latin characters and/or numbers)")
+
+    @NotNull(message = "Password cannot be null")
+    @Pattern(regexp = "^[0-9a-zA-Z]{5,20}$", message = "Invalid password (5-20 Latin characters and/or numbers)")
     private String password;
 
     @NotNull(message="The email must be provided")

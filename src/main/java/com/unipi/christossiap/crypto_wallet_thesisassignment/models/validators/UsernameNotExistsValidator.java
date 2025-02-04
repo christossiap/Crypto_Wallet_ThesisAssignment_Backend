@@ -1,3 +1,4 @@
+
 package com.unipi.christossiap.crypto_wallet_thesisassignment.models.validators;
 
 import com.unipi.christossiap.crypto_wallet_thesisassignment.repositories.auth.UserRepository;
@@ -17,6 +18,7 @@ public class UsernameNotExistsValidator implements ConstraintValidator<UsernameN
     public UsernameNotExistsValidator(UserRepository userRepository) {
         System.out.println("UsernameNotExistsValidator instantiated");
         this.userRepository = userRepository;
+
     }
 
     @Override
@@ -25,8 +27,7 @@ public class UsernameNotExistsValidator implements ConstraintValidator<UsernameN
             return false;
         }
         boolean exists = userRepository.existsByUsername(username);
-        System.out.println("Exists: " + exists);
+        //System.out.println(userRepository.existsByUsername(username));
         return !exists;
     }
 }
-
