@@ -9,10 +9,12 @@ import com.unipi.christossiap.crypto_wallet_thesisassignment.repositories.auth.R
 import com.unipi.christossiap.crypto_wallet_thesisassignment.repositories.auth.UserRepository;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.services.email.EmailTemplates;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.AuthException;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.CodeNotMatchingException;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.ResourceNotFoundException;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.UserValidationExceptions;
 import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
+import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -24,6 +26,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import jakarta.validation.Validator;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import java.util.Set;
+
 
 import java.net.BindException;
 import java.util.*;
@@ -45,6 +52,8 @@ public class AuthService implements UserDetailsService {
 
     @Autowired
     public EmailTemplates emailTemplates;
+    @Autowired
+    private Validator validator;
 
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
@@ -185,31 +194,48 @@ public class AuthService implements UserDetailsService {
     @Transactional
     public void passwordResetConfirmation(String username, String code, String newPassword){
         User user = userRepository.findUserByUsername(username);
+        if (user == null){throw new AuthException("User not found with this registered username!");}
         if (user.getCode().equals(code)){
             String encodedPassword = passwordEncoder.encode(newPassword);
             user.setPassword(encodedPassword);
             saveUser(user);
-        }else {throw new RuntimeException("Invalid confirmation code..");}
+        }else {throw new CodeNotMatchingException("Invalid confirmation code..");}
     }
 
     @Transactional
     public void usernameChange(User user, String username){
         if (userRepository.existsByUsername(username)) {
-            throw new RuntimeException("Username already exists");
+            throw new UserValidationExceptions("Username already exists");
         }else {
             user.setUsername(username);
             userRepository.save(user);
         }
+        user.setUsername(username);
+
+        // Validate using Jakarta Validator
+//        Set<ConstraintViolation<User>> violations = validator.validate(user);
+//        if (!violations.isEmpty()) {
+//            throw new ConstraintViolationException("Validation failed for User entity 1", violations);
+//        }
+
+        userRepository.save(user);
     }
 
     @Transactional
     public void emailChange(User user, String email){
-        if (userRepository.existsByEmail(email)) {
-            throw new RuntimeException("Email already exists");
-        }else {
-            user.setEmail(email);
-            userRepository.save(user);
-        }
+//        if (userRepository.existsByEmail(email)) {
+//            throw new RuntimeException("Email already exists");
+//        }else {
+//            user.setEmail(email);
+//            userRepository.save(user);
+//        }
+        user.setEmail(email);
+        // Validate using Jakarta Validator
+//        Set<ConstraintViolation<User>> violations = validator.validate(user);
+//        if (!violations.isEmpty()) {
+//            throw new ConstraintViolationException("Validation failed for User entity 2", violations);
+//        }
+        userRepository.save(user);
     }
 
     @Transactional

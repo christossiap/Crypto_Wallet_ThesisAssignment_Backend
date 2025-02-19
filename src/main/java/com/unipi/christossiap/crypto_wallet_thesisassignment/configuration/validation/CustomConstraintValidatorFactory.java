@@ -6,7 +6,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.beanvalidation.SpringConstraintValidatorFactory;
 
-@Component // ✅ This ensures Spring recognizes it as a bean
+@Component
 public class CustomConstraintValidatorFactory extends SpringConstraintValidatorFactory {
 
     private final ApplicationContext applicationContext;

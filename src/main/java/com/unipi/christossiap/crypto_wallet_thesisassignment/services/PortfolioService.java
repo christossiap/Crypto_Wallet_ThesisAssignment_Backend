@@ -82,7 +82,7 @@ public class PortfolioService {
 
     @Transactional
     public void addBalance(Double balance){
-        if (balance == null || balance >= 1000.0 || balance <= 5.0) {
+        if (balance == null || balance > 1000.0 || balance < 5.0) {
             throw new BalanceDepositionException("The amount of deposition must be minimum of 5€ and maximum of 1000€");
         }
         Portfolio portfolio = getPortfolioByUserId();

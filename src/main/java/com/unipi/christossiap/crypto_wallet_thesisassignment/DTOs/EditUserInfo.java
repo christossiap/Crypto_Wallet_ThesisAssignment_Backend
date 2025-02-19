@@ -1,6 +1,9 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs;
 
 
+import com.unipi.christossiap.crypto_wallet_thesisassignment.models.validators.EmailNotExistsConstraint;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -11,6 +14,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EditUserInfo {
+
+        private String username;
+
+        private String password;
+
+        private String email;
 
         @Size(min = 2, max = 50, message = "First name must be between 2 and 50 characters")
         private String firstName;

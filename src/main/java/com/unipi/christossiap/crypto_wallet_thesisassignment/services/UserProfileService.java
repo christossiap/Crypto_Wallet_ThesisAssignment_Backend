@@ -43,6 +43,15 @@ public class UserProfileService {
         User user = authService.getUser();
         UserProfile userProfile = userProfileRepository.findUserProfileByUserId(user.getId());
 
+        if (userInfo.getUsername() != null) {
+            authService.usernameChange(user,userInfo.getUsername());
+        }
+        if (userInfo.getEmail() != null) {
+            authService.emailChange(user,userInfo.getEmail());
+        }
+        if (userInfo.getPassword() != null) {
+            authService.changePassword(user,userInfo.getPassword());
+        }
         if (userInfo.getFirstName() != null) {
             userProfile.setFirstName(userInfo.getFirstName());
         }

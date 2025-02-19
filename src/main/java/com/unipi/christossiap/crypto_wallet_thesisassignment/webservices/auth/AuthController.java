@@ -1,11 +1,15 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.webservices.auth;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.PasswordResetDTO;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.configuration.auth.jwt.JwtAuthenticationResponse;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.configuration.auth.jwt.LoginRequest;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.configuration.auth.jwt.JwtTokenProvider;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.auth.User;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.services.auth.AuthService;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.AuthException;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.CodeNotMatchingException;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.ResourceNotFoundException;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.UserValidationExceptions;
+import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,7 +18,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.file.AccessDeniedException;
@@ -114,14 +120,16 @@ public class AuthController {
     }
 
     @PostMapping("/confirm-reset-password")
-    public ResponseEntity<?> handleRequest8(@Valid @RequestBody Map<String,String> map){
+    public ResponseEntity<?> handleRequest8(@Valid @RequestBody PasswordResetDTO dto) {
         try {
-            authService.passwordResetConfirmation(map.get("username"),map.get("code"),map.get("password"));
-        } catch (Exception e) {
-            throw new RuntimeException("Please check the details you provided!");
+            authService.passwordResetConfirmation(dto.getUsername(), dto.getCode(), dto.getPassword());
+        }catch (UserValidationExceptions e){
+            throw new UserValidationExceptions("Password...");
         }
+
         return ResponseEntity.ok("The password was changed successfully!");
     }
+
 
     @DeleteMapping("/delete-user")
     public ResponseEntity<String> handleRequest4(){
