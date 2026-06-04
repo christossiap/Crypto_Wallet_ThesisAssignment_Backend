@@ -13,7 +13,7 @@ public class CryptoApiController {
     private CryptoApiService cryptoApiService;
 
     @GetMapping("/get-prices")
-    public void handleRequest1(){
+    public void handleRequest(){
         cryptoApiService.fetchAndSaveCryptoData();
     }
 }

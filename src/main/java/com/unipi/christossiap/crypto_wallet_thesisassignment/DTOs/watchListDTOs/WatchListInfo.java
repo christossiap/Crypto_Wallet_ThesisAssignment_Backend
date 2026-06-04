@@ -1,13 +1,14 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.watchListDTOs;
 
-
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class WatchListInfo {

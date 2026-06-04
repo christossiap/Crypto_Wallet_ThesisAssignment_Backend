@@ -16,7 +16,7 @@ public class UsernameNotExistsValidator implements ConstraintValidator<UsernameN
     private final UserRepository userRepository;
 
     public UsernameNotExistsValidator(UserRepository userRepository) {
-        System.out.println("UsernameNotExistsValidator instantiated");
+//        System.out.println("UsernameNotExistsValidator instantiated");
         this.userRepository = userRepository;
 
     }

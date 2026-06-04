@@ -5,16 +5,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
-import jdk.dynalink.linker.LinkerServices;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -39,25 +37,13 @@ public class CryptoCoin {
     @OneToMany(mappedBy = "cryptoCoin", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<CryptoCoinHistory> cryptoCoinHistories = new ArrayList<>();
 
-    @ManyToMany(cascade = CascadeType.REMOVE)
-    @JsonIgnore
-    @JoinTable(
-            name = "CryptoCoinPortfolio",
-            joinColumns = @JoinColumn(name = "cryptocoin_id"),
-            inverseJoinColumns = @JoinColumn(name = "portfolio_id")
-    )
-    private List<Portfolio> portfolios = new ArrayList<>();
+    @OneToMany(mappedBy = "cryptoCoin")
+    private List<PortfolioItem> portfolioItems = new ArrayList<>();
 
 
-    @ManyToMany
-    @JsonIgnore
-    @JoinTable(
-            name = "CryptoCoinTransaction",
-            joinColumns = @JoinColumn(name = "cryptocoin_id"),
-            inverseJoinColumns = @JoinColumn(name = "transaction_id")
-    )
-    private List<Transaction> transactions = new ArrayList<>();
-
+    @OneToMany(mappedBy = "cryptoCoin", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Transaction> transactions;
 
     @ManyToMany
     @JsonIgnore

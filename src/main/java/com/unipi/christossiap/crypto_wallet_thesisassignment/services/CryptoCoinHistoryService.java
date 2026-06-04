@@ -20,7 +20,7 @@ public class CryptoCoinHistoryService {
 
     public List<CryptoCoinHistory> getCryptoCoinHistory(String coinName) throws ResourceNotFoundException {
         CryptoCoin coin = cryptoCoinService.getCryptoCoinByName(coinName);
-        if (coin == null){throw new ResourceNotFoundException("This coin doesnt exist..!");}
         return cryptoCoinHistoryRepository.findAllByCryptoCoinId(coin.getId());
     }
+
 }

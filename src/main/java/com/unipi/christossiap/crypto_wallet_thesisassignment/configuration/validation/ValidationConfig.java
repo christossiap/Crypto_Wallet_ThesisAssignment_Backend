@@ -17,7 +17,7 @@ public class ValidationConfig {
     @Bean
     public Validator validator() {
         LocalValidatorFactoryBean factoryBean = new LocalValidatorFactoryBean();
-        factoryBean.setConstraintValidatorFactory(customConstraintValidatorFactory); // ✅ Register custom factory
+        factoryBean.setConstraintValidatorFactory(customConstraintValidatorFactory);
         return factoryBean;
     }
 }

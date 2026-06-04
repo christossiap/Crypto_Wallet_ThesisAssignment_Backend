@@ -6,14 +6,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.enums.NotificationType;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.auth.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class Notification {
@@ -26,7 +25,10 @@ public class Notification {
     @Enumerated(EnumType.STRING)
     private NotificationType notificationType;
 
-    private Boolean isRead;
+    @Column(nullable = false)
+    private Boolean isRead = false;
+
+    @Column(nullable = false)
     private LocalDateTime sentAt;
 
     @ManyToOne

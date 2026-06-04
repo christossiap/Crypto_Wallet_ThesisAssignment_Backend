@@ -2,6 +2,7 @@ package com.unipi.christossiap.crypto_wallet_thesisassignment.models.auth;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.enums.UserStatus;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.Notification;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.Portfolio;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.UserProfile;
@@ -12,22 +13,23 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @NotNull(message = "Username cannot be null")
     @Pattern(regexp = "^[0-9a-zA-Z]{5,20}$|^$", message = "Invalid username (5-20 Latin characters and/or numbers)")
     @UsernameNotExistsConstraint
     private String username;
@@ -41,7 +43,9 @@ public class User {
     @Email
     @EmailNotExistsConstraint
     private String email;
-    private String status;
+
+    @Enumerated(EnumType.STRING)
+    private UserStatus status;
     private String code;
 
     @JsonManagedReference
@@ -63,7 +67,7 @@ public class User {
     @ManyToMany
     @JsonIgnore
     @JoinTable(
-            name = "UserRole",
+            name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )

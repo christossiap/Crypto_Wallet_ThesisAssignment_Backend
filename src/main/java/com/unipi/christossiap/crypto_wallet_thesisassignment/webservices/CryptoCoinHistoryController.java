@@ -12,14 +12,13 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping(value = "/api",produces = "application/json")
+@RequestMapping(value = "/api/cryptohistory",produces = "application/json")
 public class CryptoCoinHistoryController {
     @Autowired
     private CryptoCoinHistoryService cryptoCoinHistoryService;
 
-    @PostMapping("/crypto-history")
-    public ResponseEntity<List<CryptoCoinHistory>> handleRequest1(@RequestBody Map<String,String> map)throws ResourceNotFoundException {
-        List<CryptoCoinHistory> coinHistoryList = cryptoCoinHistoryService.getCryptoCoinHistory(map.get("name"));
-        return ResponseEntity.ok(coinHistoryList);
+    @GetMapping("/{coinName}")
+    public ResponseEntity<List<CryptoCoinHistory>> getCoinHistory(@PathVariable String coinName) throws ResourceNotFoundException {
+        return ResponseEntity.ok(cryptoCoinHistoryService.getCryptoCoinHistory(coinName));
     }
 }

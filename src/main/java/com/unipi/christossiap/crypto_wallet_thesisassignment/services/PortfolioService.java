@@ -1,91 +1,70 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.services;
 
-import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.portfolioDTOs.UserPortfolioInfo;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.portfolioDTOs.PortfolioCoinItem;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.portfolioDTOs.UserPortfolioResponse;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.Portfolio;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.models.PortfolioItem;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.auth.User;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.repositories.PortfolioRepository;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.services.auth.AuthService;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.AuthException;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.BalanceDepositionException;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.ResourceNotFoundException;
-import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.sound.sampled.Port;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
+@Slf4j
 @Service
 public class PortfolioService {
     @Autowired
     private PortfolioRepository portfolioRepository;
     @Autowired
     private AuthService authService;
-    @Autowired
-    private CryptoCoinService cryptoCoinService;
-    private static final Logger logger = LoggerFactory.getLogger(PortfolioService.class);
-
     public void savePortfolio(Portfolio portfolio) {
         portfolioRepository.save(portfolio);
     }
-    public Boolean isPortfolioNull(Portfolio portfolio){
-        return portfolio == null;
-    }
 
-    @Transactional
-    public void addNewPortfolioIfNecessary(User user, Portfolio portfolio){
-        if (isPortfolioNull(portfolio)){
-            Portfolio newPortfolio = new Portfolio();
-            newPortfolio.setBalance(0.0);
-            user.addPortfolio(newPortfolio);
-            authService.saveUser(user);
-        }
-    }
-    @Transactional
-    public Portfolio getPortfolioByUserId(){
+    public UserPortfolioResponse getUserPortfolio() {
         User user = authService.getUser();
-        addNewPortfolioIfNecessary(user,portfolioRepository.findPortfolioByUserId(user.getId()));
-        return portfolioRepository.findPortfolioByUserId(user.getId());
+        Portfolio portfolio = portfolioRepository.findByUserIdWithItems(user.getId())
+                .orElseThrow(() -> new RuntimeException("No assets has been found."));
+        List<PortfolioItem> assets = portfolio.getPortfolioItems();
+
+        List<PortfolioCoinItem> coins = assets.stream()
+                .map(item -> new PortfolioCoinItem(
+                item.getCryptoCoin().getName(),
+                item.getCoinAmount()
+                ))
+                .toList();
+
+        Double evaluation = assets.stream()
+                .mapToDouble(item -> item.getCryptoCoin().getPrice() * item.getCoinAmount())
+                .sum();
+
+        return new UserPortfolioResponse(
+        user.getUsername(),
+        user.getPortfolio().getBalance(),
+        coins,
+        evaluation);
     }
-
-
-    public UserPortfolioResponse getUserPortfolio() throws ResourceNotFoundException {
-        User user = authService.getUser();
-        if (user == null){throw new AuthException("Please login!");}
-        List<UserPortfolioInfo> list = portfolioRepository.findUserPortfolioInfo(user.getId());
-        double evaluation = 0.0;
-        List<Map<String, Object>> coinInfoList = new ArrayList<>();
-
-        for (UserPortfolioInfo portfolioInfo : list) {
-            Map<String, Object> coinInfo = new HashMap<>();
-            coinInfo.put("coinName", portfolioInfo.getCoinName());
-            coinInfo.put("coinAmount", portfolioInfo.getCoinAmount());
-            coinInfoList.add(coinInfo);
-            evaluation+= cryptoCoinService.getCryptoCoinByName(portfolioInfo.getCoinName()).getPrice()*portfolioInfo.getCoinAmount();
-        }
-
-        UserPortfolioResponse response = new UserPortfolioResponse();
-        response.setUsername(user.getUsername());
-        response.setBalance(user.getPortfolio().getBalance());
-        response.setCoins(coinInfoList);
-        response.setEvaluation(evaluation);
-                
-        return response;
-    }
-
-
 
     @Transactional
     public void addBalance(Double balance){
-        if (balance == null || balance > 1000.0 || balance < 5.0) {
-            throw new BalanceDepositionException("The amount of deposition must be minimum of 5€ and maximum of 1000€");
-        }
-        Portfolio portfolio = getPortfolioByUserId();
+        User user = authService.getUser();
+        Portfolio portfolio = portfolioRepository.findPortfolioByUserId(user.getId())
+                .orElseThrow(() -> new RuntimeException("No assets has been found."));
         portfolio.setBalance(portfolio.getBalance() + balance);
         savePortfolio(portfolio);
     }

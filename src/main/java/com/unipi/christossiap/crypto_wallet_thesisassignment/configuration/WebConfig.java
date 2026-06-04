@@ -1,5 +1,6 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.configuration;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -7,11 +8,17 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
+
+    @Value("${app.cors.allowedOrigins}")
+    private String allowedOrigins;
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
+        String[] origins = allowedOrigins.split(",");
+
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:3000")  // Adjust as needed
-                .allowedMethods("GET", "POST", "PUT", "DELETE")
+                .allowedOrigins(origins)
+                .allowedMethods("GET", "POST", "PUT", "DELETE","PATCH", "OPTIONS")
                 .allowedHeaders("*");
     }
 

@@ -1,12 +1,14 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.services;
 
+import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.NotificationDTOs.NotificationResponse;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.enums.NotificationType;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.Notification;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.auth.User;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.repositories.NotificationRepository;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.services.auth.AuthService;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.AuthException;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.ResourceNotFoundException;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,18 +23,27 @@ public class NotificationService {
     @Autowired
     private AuthService authService;
 
-    public List<Notification> getAllNotifications(){
+    public List<NotificationResponse> getAllNotifications() {
         User user = authService.getUser();
-        return notificationRepository.findByUserId(user.getId());
+
+        return notificationRepository.findByUserId(user.getId())
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 
-    public List<Notification> getUnreadNotifications(){
+    public List<NotificationResponse> getUnreadNotifications() {
         User user = authService.getUser();
-        return notificationRepository.findByUserIdAndIsRead(user.getId(), false);
+
+        return notificationRepository
+                .findByUserIdAndIsRead(user.getId(), false)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 
     @Transactional
-    public void createNotification(String title, String message, NotificationType type) throws ResourceNotFoundException {
+    public void createNotification(String title, String message, NotificationType type) {
         User user = authService.getUser();
         try {
             Notification notification = new Notification();
@@ -40,27 +51,42 @@ public class NotificationService {
             notification.setMessage(message);
             notification.setNotificationType(type);
             notification.setSentAt(LocalDateTime.now());
-            notification.setIsRead(false);
+            notification.setUser(user);
             notificationRepository.save(notification);
-            user.addNotification(notification);
         } catch(Exception e){
-            throw new ResourceNotFoundException("Λάθος Notification, προσπαθήστε ξανά!");
+            throw new RuntimeException("Error creating notification!",e);
         }
     }
 
 
+    @Transactional
     public void markNotificationAsRead(Integer notificationId) throws ResourceNotFoundException {
-        Notification notification = notificationRepository.findNotificationById(notificationId);
-        if (notification == null ){throw new ResourceNotFoundException("Δεν βρέθηκε ειδοποίηση!");}
-        notification.setIsRead(true);
-        notificationRepository.save(notification);
+        User user = authService.getUser();
+        Notification notification = notificationRepository.findNotificationById(notificationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Notification not found"));
+        notification.setIsRead(Boolean.TRUE);
+        if (!notification.getUser().getId().equals(user.getId())) {
+            throw new AuthException("Access denied");
+        }
     }
 
     @Transactional
     public void deleteNotification(Integer notificationId) throws ResourceNotFoundException {
-        Notification notification = notificationRepository.findNotificationById(notificationId);
-        if (notification == null ){throw new ResourceNotFoundException("Δεν βρέθηκε ειδοποίηση!");}
+        Notification notification = notificationRepository.findNotificationById(notificationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Notification not found!"));
         notificationRepository.delete(notification);
+    }
+
+    private NotificationResponse mapToResponse(Notification notification) {
+
+        return new NotificationResponse(
+                notification.getId(),
+                notification.getTitle(),
+                notification.getMessage(),
+                notification.getNotificationType(),
+                notification.getIsRead(),
+                notification.getSentAt()
+        );
     }
 
 }

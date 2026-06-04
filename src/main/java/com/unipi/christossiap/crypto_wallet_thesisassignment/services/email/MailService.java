@@ -15,7 +15,7 @@ import java.io.File;
 @Service
 public class MailService {
 
-    private JavaMailSender javaMailSender;
+    private final JavaMailSender javaMailSender;
 
     @Autowired
     public MailService(JavaMailSender javaMailSender) {

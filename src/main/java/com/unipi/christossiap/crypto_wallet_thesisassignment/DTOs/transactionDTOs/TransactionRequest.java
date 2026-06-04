@@ -1,15 +1,12 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.transactionDTOs;
 
+import com.unipi.christossiap.crypto_wallet_thesisassignment.enums.TransactionType;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class TransactionRequest {
-    private String transactionType;
-    private String cryptoCoinName; // Name of the coin
-    private Double amount; // Amount of coin to buy/sell
-}
+public record TransactionRequest(
+        @NotBlank String cryptoCoinName,
+        @NotNull @Positive Double amount,
+        @NotNull TransactionType transactionType
+) {}

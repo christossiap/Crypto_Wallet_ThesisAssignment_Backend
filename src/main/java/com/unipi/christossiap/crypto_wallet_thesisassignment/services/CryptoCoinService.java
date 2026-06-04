@@ -1,6 +1,7 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.services;
 
 
+import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.cryptocoinDTOs.CryptoCoinResponse;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.CryptoCoin;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.repositories.CryptoCoinRepository;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.repositories.specifications.CryptoCoinSpecification;
@@ -12,9 +13,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -29,20 +27,30 @@ public class CryptoCoinService {
 
 //    @Cacheable(value = "my-cache", key = "'coin' + #name", sync = true)
     public CryptoCoin getCryptoCoinByName(String name) throws ResourceNotFoundException {
-        CryptoCoin coin = cryptoCoinRepository.findCryptoCoinByName(name);
-        if (coin == null){
-            throw new ResourceNotFoundException("Crypto not found or an error occurred!");
-        }
-        return coin;
+
+        return cryptoCoinRepository.findCryptoCoinByName(name)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Crypto not found or an error occurred!"));
     }
+    public CryptoCoinResponse getCryptoCoinResponseByName(String name) throws ResourceNotFoundException {
+
+        CryptoCoin coin = getCryptoCoinByName(name);
+
+        return mapToResponse(coin);
+    }
+
 
 //    @Cacheable(value = "my-cache", key = "'coin-' + #id",sync = true)
     public CryptoCoin getCryptoCoinById(Integer id) throws ResourceNotFoundException {
-        CryptoCoin coin = cryptoCoinRepository.findCryptoCoinById(id);
-        if (coin == null){
-            throw new ResourceNotFoundException("Crypto not found or an error occurred!");
-        }
-        return coin;
+        return cryptoCoinRepository.findCryptoCoinById(id)
+                .orElseThrow(()-> new ResourceNotFoundException("Crypto not found or an error occurred!"));
+    }
+
+    public CryptoCoinResponse getCryptoCoinResponseById(Integer id) throws ResourceNotFoundException {
+
+        CryptoCoin coin = getCryptoCoinById(id);
+
+        return mapToResponse(coin);
     }
     public List<CryptoCoin> getAllCryptoCoins(Integer page, Integer size, String sortBy, String sortOrder) {
 
@@ -91,8 +99,21 @@ public class CryptoCoinService {
         if (startDate!=null && endDate!=null)
             spec = spec.and(CryptoCoinSpecification.updatedBetween(startDate,endDate));
 
-        List<CryptoCoin> cryptoCoins = cryptoCoinRepository.findAll(spec);
-
-        return cryptoCoins;
+        return cryptoCoinRepository.findAll(spec);
     }
+
+    private CryptoCoinResponse mapToResponse(CryptoCoin coin) {
+
+        return new CryptoCoinResponse(
+                coin.getId(),
+                coin.getName(),
+                coin.getSymbol(),
+                coin.getTotalSupply(),
+                coin.getPrice(),
+                coin.getPercentChange24h(),
+                coin.getMarketCap(),
+                coin.getLastUpdated()
+        );
+    }
+
 }

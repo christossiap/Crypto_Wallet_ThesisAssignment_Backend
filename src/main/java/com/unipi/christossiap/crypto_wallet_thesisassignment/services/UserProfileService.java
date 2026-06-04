@@ -1,29 +1,29 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.services;
 
-import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.EditUserInfo;
-import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.UserProfileInfo;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.profileDTOs.EditUserProfileRequest;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.profileDTOs.UserProfileInfo;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.UserProfile;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.auth.User;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.repositories.UserProfileRepository;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.services.auth.AuthService;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.ResourceNotFoundException;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.beans.Transient;
-import java.util.Map;
 
 @Service
 public class UserProfileService {
     @Autowired
     private UserProfileRepository userProfileRepository;
+
     @Autowired
     private AuthService authService;
 
-    public UserProfileInfo getAllUserInfo(){
+    public UserProfileInfo getAllUserInfo() throws ResourceNotFoundException {
         User user = authService.getUser();
-        UserProfile userProfile = userProfileRepository.findUserProfileByUserId(user.getId());
+        UserProfile userProfile = userProfileRepository.findUserProfileByUserId(user.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Profile not found for user: " + user.getId()));
+
         return new UserProfileInfo(
                 user.getUsername(),
                 user.getEmail(),
@@ -39,43 +39,36 @@ public class UserProfileService {
     }
 
     @Transactional
-    public void editUserProfile(EditUserInfo userInfo){
+    public void editUserProfile(EditUserProfileRequest userInfo) throws ResourceNotFoundException {
         User user = authService.getUser();
-        UserProfile userProfile = userProfileRepository.findUserProfileByUserId(user.getId());
+        UserProfile userProfile = userProfileRepository.findUserProfileByUserId(user.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Profile not found for user: " + user.getId()));
 
-        if (userInfo.getUsername() != null) {
-            authService.usernameChange(user,userInfo.getUsername());
+        if (userInfo.firstName() != null) {
+            userProfile.setFirstName(userInfo.firstName());
         }
-        if (userInfo.getEmail() != null) {
-            authService.emailChange(user,userInfo.getEmail());
+        if (userInfo.lastName() != null) {
+            userProfile.setLastName(userInfo.lastName());
         }
-        if (userInfo.getPassword() != null) {
-            authService.changePassword(user,userInfo.getPassword());
+        if (userInfo.phoneNumber() != null) {
+            userProfile.setPhoneNumber(userInfo.phoneNumber());
         }
-        if (userInfo.getFirstName() != null) {
-            userProfile.setFirstName(userInfo.getFirstName());
+        if (userInfo.country() != null) {
+            userProfile.setCountry(userInfo.country());
         }
-        if (userInfo.getLastName() != null) {
-            userProfile.setLastName(userInfo.getLastName());
+        if (userInfo.city() != null) {
+            userProfile.setCity(userInfo.city());
         }
-        if (userInfo.getPhoneNumber() != null) {
-            userProfile.setPhoneNumber(userInfo.getPhoneNumber());
+        if (userInfo.addressLine() != null) {
+            userProfile.setAddressLine(userInfo.addressLine());
         }
-        if (userInfo.getCountry() != null) {
-            userProfile.setCountry(userInfo.getCountry());
+        if (userInfo.postalCode() != null) {
+            userProfile.setPostalCode(userInfo.postalCode());
         }
-        if (userInfo.getCity() != null) {
-            userProfile.setCity(userInfo.getCity());
-        }
-        if (userInfo.getAddressLine() != null) {
-            userProfile.setAddressLine(userInfo.getAddressLine());
-        }
-        if (userInfo.getPostalCode() != null) {
-            userProfile.setPostalCode(userInfo.getPostalCode());
-        }
-        if (userInfo.getBio() != null) {
-            userProfile.setBio(userInfo.getBio());
+        if (userInfo.bio() != null) {
+            userProfile.setBio(userInfo.bio());
         }
         userProfileRepository.save(userProfile);
     }
+
 }

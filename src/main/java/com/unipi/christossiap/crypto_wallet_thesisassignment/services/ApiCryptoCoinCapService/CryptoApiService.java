@@ -8,14 +8,16 @@ import com.unipi.christossiap.crypto_wallet_thesisassignment.models.CryptoCoinHi
 import com.unipi.christossiap.crypto_wallet_thesisassignment.repositories.CryptoCoinRepository;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.services.CryptoCoinHistoryService;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.services.CryptoCoinService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import java.time.Instant;
@@ -23,7 +25,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-
+@Slf4j
 @Service
 public class CryptoApiService {
     @Autowired
@@ -35,15 +37,17 @@ public class CryptoApiService {
     @Autowired
     private CryptoCoinHistoryService cryptoCoinHistoryService;
 
-    private static final Logger logger = LoggerFactory.getLogger(CryptoCoinService.class);
-
     @Value("${api.url}")
     private String apiUrl;
 
-    //@Scheduled(fixedRate = 60000) // 1 minute in milliseconds
+//    @Scheduled(fixedRate = 60000) // 1 minute in milliseconds
     //@Scheduled(fixedRate = 3600000) // 1 hour in milliseconds
     //@Scheduled(fixedRate = 86400000) // 1 day in milliseconds
-    public void fetchAndSaveCryptoData() {
+//@Caching(evict = {
+//        @CacheEvict(value = "my-cache", key = "'coin' + #coin.name"),
+//        @CacheEvict(value = "my-cache", key = "'coin-' + #coin.id")
+//})
+public void fetchAndSaveCryptoData() {
         String param1 = "limit=30";
         String url = String.format("%s?%s", apiUrl, param1);
 
@@ -65,7 +69,8 @@ public class CryptoApiService {
 
 
             for (CryptoData cryptoData : cryptoDataList) {
-                CryptoCoin oldCoin = cryptoCoinRepository.findCryptoCoinByName(cryptoData.getName());
+                CryptoCoin oldCoin = cryptoCoinRepository.findCryptoCoinByName(cryptoData.getName())
+                        .orElse(null);
                 if (oldCoin != null) {
                     oldCoin.setTotalSupply(cryptoData.getTotalSupply());
 

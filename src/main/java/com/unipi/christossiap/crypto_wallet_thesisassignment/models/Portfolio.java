@@ -3,29 +3,26 @@ package com.unipi.christossiap.crypto_wallet_thesisassignment.models;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.auth.User;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 public class Portfolio {
     @Id
     private Integer id;
-
     private Double balance;
 
-    @ManyToMany(mappedBy = "portfolios",cascade = CascadeType.REMOVE)
-    private List<CryptoCoin> cryptoCoins = new ArrayList<>();
+    @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<PortfolioItem> portfolioItems = new ArrayList<>();
 
     @OneToOne
     @MapsId
@@ -37,16 +34,4 @@ public class Portfolio {
     @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Transaction> transactions = new ArrayList<>();
 
-    public void addCryptoCoin(CryptoCoin cryptoCoin){
-        if (!cryptoCoins.contains(cryptoCoin)) {
-            cryptoCoins.add(cryptoCoin);
-        }
-        if (!cryptoCoin.getPortfolios().contains(this)) {
-            cryptoCoin.getPortfolios().add(this);
-        }
-    }
-    public void removeCryptoCoin(CryptoCoin cryptoCoin){
-        cryptoCoins.remove(cryptoCoin);
-        cryptoCoin.getPortfolios().remove(this);
-    }
 }

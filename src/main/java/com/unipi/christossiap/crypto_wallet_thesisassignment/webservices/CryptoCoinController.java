@@ -1,45 +1,31 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.webservices;
 
 
+import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.cryptocoinDTOs.CryptoCoinResponse;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.CryptoCoin;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.services.CryptoCoinService;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.ResourceNotFoundException;
-import org.hibernate.annotations.CreationTimestamp;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-
-@CrossOrigin(origins = "http://192.168.122.30:3000/") // Allow requests from frontend running on http://192.168.122.30:3000/
 @RestController
 @RequestMapping(path = "/api/coin/",produces = "application/json")
-@Validated
 public class CryptoCoinController {
 
-    private static final Logger logger = LoggerFactory.getLogger(CryptoCoinController.class);
     @Autowired
     private CryptoCoinService cryptoCoinService;
 
-    @GetMapping("/crypto/{name}")
-    public ResponseEntity<CryptoCoin> handleRequest1(@PathVariable @Valid String name) throws ResourceNotFoundException {
-        CryptoCoin coin = cryptoCoinService.getCryptoCoinByName(name);
-        return ResponseEntity.ok(coin);
+    @GetMapping("/{name}")
+    public ResponseEntity<CryptoCoinResponse> handleRequest1(@PathVariable  String name) throws ResourceNotFoundException {
+        return ResponseEntity.ok(cryptoCoinService.getCryptoCoinResponseByName(name));
     }
 
     @GetMapping("/cryptos/{id}")
-    public ResponseEntity<CryptoCoin> handleRequest4(@PathVariable @Valid Integer id) throws ResourceNotFoundException {
-        CryptoCoin coin = cryptoCoinService.getCryptoCoinById(id);
-        return ResponseEntity.ok(coin);
+    public ResponseEntity<CryptoCoinResponse> handleRequest4(@PathVariable Integer id) throws ResourceNotFoundException {
+        return ResponseEntity.ok(cryptoCoinService.getCryptoCoinResponseById(id));
     }
 
     @GetMapping("/cryptos")
@@ -75,10 +61,5 @@ public class CryptoCoinController {
 
         return ResponseEntity.ok(results);
     }
-
-//    @PostMapping(value = "/addcoin", consumes = "application/json")
-//    public ResponseEntity<CryptoCoin> handleRequest4(@Valid @RequestBody CryptoCoin coin){
-//        return ResponseEntity.ok(cryptoCoinService.addCryptoCoin(coin));
-//    }
 
 }

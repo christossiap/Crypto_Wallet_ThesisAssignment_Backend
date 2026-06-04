@@ -1,5 +1,7 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.services.auth;
 
+import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.authDTOs.RegisterRequest;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.enums.UserStatus;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.Portfolio;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.UserProfile;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.WatchList;
@@ -11,11 +13,10 @@ import com.unipi.christossiap.crypto_wallet_thesisassignment.services.email.Emai
 import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.AuthException;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.CodeNotMatchingException;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.ResourceNotFoundException;
-import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.UserValidationExceptions;
 import jakarta.mail.MessagingException;
-import jakarta.transaction.Transactional;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -26,20 +27,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import jakarta.validation.Validator;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
-import java.util.Set;
 
-
-import java.net.BindException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 @Service
+@Slf4j
 public class AuthService implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;
@@ -52,11 +45,6 @@ public class AuthService implements UserDetailsService {
 
     @Autowired
     public EmailTemplates emailTemplates;
-    @Autowired
-    private Validator validator;
-
-    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
-
     public void saveUser(User user){userRepository.save(user);}
 
     public User getUser(){
@@ -73,7 +61,7 @@ public class AuthService implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("Invalid username or password.");
         }
-        else if (user.getStatus().equals("unverified")) {
+        else if (user.getStatus() == UserStatus.UNVERIFIED) {
             throw new AuthException("Unverified user. Login denied!");
         }
 
@@ -84,38 +72,15 @@ public class AuthService implements UserDetailsService {
         );
     }
 
-//    @Transactional
-//    public void registerUser(User user) {
-//        userRepository.save(user); //για να πάρει ID
-//        Role role = roleRepository.findRoleByName("USER");
-//        String encodedPassword = passwordEncoder.encode(user.getPassword());
-//        user.setPassword(encodedPassword);
-//        user.addRole(role);
-//        user.addWatchList(new WatchList());
-//        Portfolio portfolio = new Portfolio();
-//        portfolio.setBalance(0.0);
-//        user.addPortfolio(portfolio);
-//        user.addUserProfile(new UserProfile());
-//
-//    // Verification user με το Mail
-//        user.setStatus("Unverified");
-//        Random r = new Random();
-//        user.setCode(String.valueOf(r.nextInt(10000)));
-//        userRepository.save(user);
-////        try {
-////            emailTemplates.sendEmailCompleteRegister(user);
-////        } catch (MessagingException e) {
-////            throw new RuntimeException(e);
-////        }
-//    }
-
     @Transactional
-    public void registerUser(User user) {
+    public void registerUser(RegisterRequest registerRequest) {
+        User user = new User();
         Role role = roleRepository.findRoleByName("USER");
         user.addRole(role);
-
-        String encodedPassword = passwordEncoder.encode(user.getPassword());
+        user.setUsername(registerRequest.username());
+        String encodedPassword = passwordEncoder.encode(registerRequest.password());
         user.setPassword(encodedPassword);
+        user.setEmail(registerRequest.email());
 
         user.addWatchList(new WatchList());
 
@@ -125,66 +90,71 @@ public class AuthService implements UserDetailsService {
 
         user.addUserProfile(new UserProfile());
 
-        user.setStatus("Unverified");
-        Random random = new Random();
-        user.setCode(String.valueOf(random.nextInt(10000)));
+        user.setStatus(UserStatus.UNVERIFIED);
 
+        user.setCode(UUID.randomUUID().toString());
         userRepository.save(user);
 
-        // Uncomment if email functionality is implemented
-//         try {
-//             emailTemplates.sendEmailCompleteRegister(user);
-//         } catch (MessagingException e) {
-//             throw new RuntimeException(e);
-//         }
+//         Uncomment if email functionality is implemented
+         try {
+             emailTemplates.sendEmailCompleteRegister(user);
+         } catch (MessagingException e) {
+             throw new RuntimeException(e);
+         }
     }
 
-    public Boolean registerComplete(String code){
+    public void registerComplete(String code) {
         User user = userRepository.findUserByCode(code);
-        if (user==null)
-            return false;
-
-        user.setStatus("verified");
+        if (user == null) throw new CodeNotMatchingException("Invalid or expired verification code");
+        user.setStatus(UserStatus.VERIFIED);
+        user.setCode(null);
         userRepository.save(user);
-        return true;
     }
 
     @Transactional
-    public void changePassword(User user, String password) {
-        try {
-            String encodedPassword = passwordEncoder.encode(password);
-            user.setPassword(encodedPassword);
-            userRepository.save(user);
-        } catch (Exception e) {
-            // Log the exception here
-            e.printStackTrace();
-            throw new RuntimeException("Error occurred while changing password", e);
-        }
+    public void changePassword(String password) { //When logged in
+        User user = getUser();
+        String encodedPassword = passwordEncoder.encode(password);
+        user.setPassword(encodedPassword);
+        userRepository.save(user);
     }
 
     @Transactional
-    public User userNameReminder(String email){
+    public void changeUsername(String username) {
+        User user = getUser();
+        user.setUsername(username);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void emailChange(String email) {
+        User user = getUser();
+        user.setEmail(email);
+        userRepository.save(user);
+    }
+
+
+    @Transactional
+    public void userNameReminder(String email){
         User user = userRepository.findUserByEmail(email);
         if (user == null){throw new AuthException("User not found with this registered email!");}
-        Random r = new Random();
-        user.setCode(String.valueOf(r.nextInt(10000)));
+        user.setCode(UUID.randomUUID().toString());
         saveUser(user);
         try {
             emailTemplates.sendEmailUsernameReminder(user);
         } catch (MessagingException e) {
             throw new RuntimeException(e);
         }
-        return user;
+        log.info(user.getUsername()); //monitoring result.
     }
 
     @Transactional
-    public void passwordReminder(String username){
-        User user = userRepository.findUserByUsername(username);
-        if (user == null){throw new AuthException("User not found with this registered username!");}
+    public void passwordReminder(String email){
+        User user = userRepository.findUserByEmail(email);
+        if (user == null){throw new AuthException("User not found with this registered email!");}
+        user.setCode(UUID.randomUUID().toString());
+        userRepository.save(user);
         try {
-            Random random = new Random();
-            user.setCode(String.valueOf(random.nextInt(10000)));
-            userRepository.save(user);
             emailTemplates.sendEmailResetPassword(user);
         } catch (MessagingException e) {
             throw new RuntimeException(e);
@@ -198,44 +168,9 @@ public class AuthService implements UserDetailsService {
         if (user.getCode().equals(code)){
             String encodedPassword = passwordEncoder.encode(newPassword);
             user.setPassword(encodedPassword);
+            user.setCode(null);
             saveUser(user);
         }else {throw new CodeNotMatchingException("Invalid confirmation code..");}
-    }
-
-    @Transactional
-    public void usernameChange(User user, String username){
-        if (userRepository.existsByUsername(username)) {
-            throw new UserValidationExceptions("Username already exists");
-        }else {
-            user.setUsername(username);
-            userRepository.save(user);
-        }
-        user.setUsername(username);
-
-        // Validate using Jakarta Validator
-//        Set<ConstraintViolation<User>> violations = validator.validate(user);
-//        if (!violations.isEmpty()) {
-//            throw new ConstraintViolationException("Validation failed for User entity 1", violations);
-//        }
-
-        userRepository.save(user);
-    }
-
-    @Transactional
-    public void emailChange(User user, String email){
-//        if (userRepository.existsByEmail(email)) {
-//            throw new RuntimeException("Email already exists");
-//        }else {
-//            user.setEmail(email);
-//            userRepository.save(user);
-//        }
-        user.setEmail(email);
-        // Validate using Jakarta Validator
-//        Set<ConstraintViolation<User>> violations = validator.validate(user);
-//        if (!violations.isEmpty()) {
-//            throw new ConstraintViolationException("Validation failed for User entity 2", violations);
-//        }
-        userRepository.save(user);
     }
 
     @Transactional

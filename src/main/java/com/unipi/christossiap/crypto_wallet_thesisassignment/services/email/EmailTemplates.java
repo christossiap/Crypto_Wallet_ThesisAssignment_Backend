@@ -37,9 +37,8 @@ public class EmailTemplates {
     public void sendEmailResetPassword(User user) throws MessagingException {
 
         String text =
-                "The code for password reset is: " + user.getCode();
-
-        text += " (If you did not request this, please ignore this message)";
+                "The code for password reset is: " + user.getCode()
+                + "\n (If you did not request this, please ignore this message)";
 
         mailService.sendHtmlEmail(user.getEmail(), "Password Reset", text);
     }

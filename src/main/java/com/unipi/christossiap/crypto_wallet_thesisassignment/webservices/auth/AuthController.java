@@ -1,16 +1,14 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.webservices.auth;
-import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.PasswordResetDTO;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.DTOs.authDTOs.*;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.configuration.auth.jwt.JwtAuthenticationResponse;
-import com.unipi.christossiap.crypto_wallet_thesisassignment.configuration.auth.jwt.LoginRequest;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.configuration.auth.jwt.JwtTokenProvider;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.models.auth.User;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.services.auth.AuthService;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.AuthException;
-import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.CodeNotMatchingException;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.ResourceNotFoundException;
 import com.unipi.christossiap.crypto_wallet_thesisassignment.settings.exceptions.UserValidationExceptions;
-import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,18 +16,16 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.file.AccessDeniedException;
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
 @Validated
+@Slf4j
 public class AuthController {
 
     @Autowired
@@ -48,11 +44,12 @@ public class AuthController {
         try {
             authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            loginRequest.getUsername(),
-                            loginRequest.getPassword()
+                            loginRequest.username(),
+                            loginRequest.password()
                     )
             );
         } catch(Exception e) {
+            log.info(loginRequest.username(), loginRequest.password());
             throw new AccessDeniedException("Access Denied");
         }
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -61,72 +58,58 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> handleRequest2(@Valid @RequestBody User user){
-        authService.registerUser(user);
+    public ResponseEntity<?> handleRequest2(@Valid @RequestBody RegisterRequest registerRequest){
+        authService.registerUser(registerRequest);
         return ResponseEntity.ok("success");
     }
 
 
     @PostMapping("/register-complete")
-    public ResponseEntity<String> handleRequest3(@Valid @RequestBody Map<String,String> map){
-        if (authService.registerComplete(map.get("Code"))){
-            return ResponseEntity.ok("success");
-        }else
-            return ResponseEntity.ok("registration failed...Please check the details you provided!");
+    public ResponseEntity<String> handleRequest3(@Valid @RequestBody CodeRequest codeRequest){
+        authService.registerComplete(codeRequest.code());
+        return ResponseEntity.ok("Registration has been successful.");
     }
 
     @PostMapping("/change-password")
-    public ResponseEntity<?> handleRequest5 (@Valid @RequestBody Map<String, String> map){
-        User user = authService.getUser();
-        if (user==null)
-            throw new AuthException("You are not logged in!");
-        String password = map.get("password");
-        authService.changePassword (user, password);
-        return new ResponseEntity<>(user, HttpStatus.OK);
+    public ResponseEntity<String> handleRequest5 (
+            @Valid @RequestBody ChangePasswordRequest changePasswordRequest){
+        authService.changePassword (changePasswordRequest.password());
+        return ResponseEntity.ok("Password successfully changed");
     }
 
     @PostMapping("/change-username")
-    public ResponseEntity<?> handleRequest9 (@Valid @RequestBody Map<String, String> map){
-        User user = authService.getUser();
-        if (user==null)
-            throw new AuthException("You are not logged in!");
-        String username = map.get("username");
-        authService.usernameChange (user, username);
+
+    public ResponseEntity<String> handleRequest9 (
+            @Valid @RequestBody ChangeUsernameRequest changeUsernameRequest){
+        authService.changeUsername(changeUsernameRequest.username());
         return ResponseEntity.ok("Username successfully changed!");
     }
 
     @PostMapping("/change-email")
-    public ResponseEntity<?> handleRequest10 (@Valid @RequestBody Map<String, String> map){
-        User user = authService.getUser();
-        if (user==null)
-            throw new AuthException("You are not logged in!");
-        String email = map.get("email");
-        authService.emailChange(user,email);
+    public ResponseEntity<String> handleRequest10 (
+            @Valid @RequestBody ChangeEmailRequest changeEmailRequest){
+        authService.emailChange(changeEmailRequest.email());
         return ResponseEntity.ok("Email successfully changed!");
     }
 
     @PostMapping("/username-reminder")
-    public ResponseEntity<?> handleRequest6(@Valid @RequestBody Map<String,String> map){
-        User user = authService.userNameReminder(map.get("email"));
-        map = new HashMap<>();
-        map.put("username: ",user.getUsername());
-        return ResponseEntity.ok(map);
+    public ResponseEntity<?> handleRequest6(@Valid @RequestBody EmailRequest emailRequest){
+        authService.userNameReminder(emailRequest.email());
+        return ResponseEntity.ok("A reminder message has been sent to registered email!");
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<String> handleRequest7(@Valid @RequestBody Map<String,String> map){
-        authService.passwordReminder(map.get("username"));
-        return ResponseEntity.ok("A reminder message has been sent to your email!");
+    public ResponseEntity<String> handleRequest7(@Valid @RequestBody EmailRequest emailRequest){
+        authService.passwordReminder(emailRequest.email());
+        return ResponseEntity.ok("A reminder message has been sent to registered email!");
     }
 
     @PostMapping("/confirm-reset-password")
-    public ResponseEntity<?> handleRequest8(@Valid @RequestBody PasswordResetDTO dto) {
-        try {
-            authService.passwordResetConfirmation(dto.getUsername(), dto.getCode(), dto.getPassword());
-        }catch (UserValidationExceptions e){
-            throw new UserValidationExceptions("Password...");
-        }
-
+    public ResponseEntity<?> handleRequest8(@Valid @RequestBody PasswordResetRequest passwordResetRequest) {
+        authService.passwordResetConfirmation(
+                passwordResetRequest.username(),
+                passwordResetRequest.code(),
+                passwordResetRequest.password());
         return ResponseEntity.ok("The password was changed successfully!");
     }
 

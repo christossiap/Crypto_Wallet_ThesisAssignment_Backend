@@ -1,11 +1,9 @@
 package com.unipi.christossiap.crypto_wallet_thesisassignment.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.unipi.christossiap.crypto_wallet_thesisassignment.models.associations.CryptoCoinTransaction;
+import com.unipi.christossiap.crypto_wallet_thesisassignment.enums.TransactionType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -14,7 +12,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -25,25 +24,19 @@ public class Transaction {
     private Double amount;
     private Double priceAtTransaction;
     private LocalDateTime transactionDate;
-    private String transactionType; // BUY, SELL, TRANSFER
+
+    @Enumerated(EnumType.STRING)
+    private TransactionType transactionType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     @JoinColumn(name = "portfolio_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)  // Ensure cascading deletion at the DB level
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Portfolio portfolio;
 
-    @ManyToMany(mappedBy = "transactions")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cryptocoin_id", nullable = false)
     @JsonIgnore
-    private List<CryptoCoin> cryptoCoins = new ArrayList<>();
-
-    public void addCryptoCoin(CryptoCoin cryptoCoin){
-        if (!cryptoCoins.contains(cryptoCoin)) {
-            cryptoCoins.add(cryptoCoin);
-        }
-        if (!cryptoCoin.getTransactions().contains(this)) {
-            cryptoCoin.getTransactions().add(this);
-        }
-    }
+    private CryptoCoin cryptoCoin;
 
 }
